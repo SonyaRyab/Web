@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Заявка {{ .application.ID }}</title>
+    <link rel="stylesheet" href="/static/styles/application_style.css">
+</head>
+<body>
+<header>
+    <div class="title-container">
+        <span class="calculator-title">Просмотр заявки</span>
+    </div>
+    <div class="home-link">
+        <a href="/hello" class="calculate-btn" style="text-decoration: none;">Домой</a>
+    </div>
+</header>
+
+<main>
+    <div class="application-header">
+        <div class="application-info">
+            <div class="info-row">
+                <span class="info-label">Номер заявки:</span>
+                <span class="info-value">{{ .application.ID }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Дата создания:</span>
+                <span class="info-value">{{ .application.CreatedAt }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Заказчик:</span>
+                <span class="info-value">{{ .application.Customer }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Статус:</span>
+                <span class="info-value status-{{ .application.Status }}">{{ .application.Status }}</span>
+            </div>
+        </div>
+
+        <!-- Поле результата вычислений -->
+        <div class="result-block">
+            <span class="result-label">Результат расчета:</span>
+            <span class="result-value">{{ .application.Result }}</span>
+        </div>
+    </div>
+
+    <!-- Список услуг в заявке -->
+    <h2 class="services-title">Услуги в заявке</h2>
+    <div class="services-list">
+        {{ range .application.Items }}
+        <div class="service-item">
+            <div class="service-card">
+                <div class="service-fields">
+                    <img src="{{ .Image }}" alt="{{ .Title }}" class="service-image" width="50" height="50">
+                    <span class="service-title">{{ .Title }}</span>
+                    <span class="service-formula">{{ .Formula }}</span>
+                    <span class="service-molar">М: {{ .MolarMass }} г/моль</span>
+                </div>
+
+<!--                <form action="/application/{{ $.application.ID }}/update-item" method="POST" class="service-mm-fields">-->
+                    <input type="hidden" name="item_id" value="{{ .ID }}">
+                    <div class="mm-field">
+                        <label>Кол-во:</label>
+                        <input type="number" name="quantity" value="{{ .Quantity }}" min="1" class="mm-input">
+                    </div>
+                    <div class="mm-field">
+                        <label>Комментарий:</label>
+                        <input type="text" name="comment" value="{{ .Comment }}" placeholder="..." class="mm-input">
+                    </div>
+                    <div class="mm-field">
+<!--                        <button type="submit" class="save-item-btn">Сохранить</button>-->
+                    </div>
+<!--                </form>-->
+<!--                <form action="/application/{{ $.application.ID }}/remove/{{ .ID }}" method="POST" style="display: inline;">-->
+<!--                    <button type="submit" class="remove-item-btn">Удалить</button>-->
+<!--                </form>-->
+            </div>
+            {{ else }}
+            <div class="empty-cart">
+                <p>В заявке нет услуг</p>
+            </div>
+            {{ end }}
+        </div>
+
+        <div class="application-actions">
+<!--            <form action="/application/{{ .application.ID }}/clear" method="POST" style="display: inline; margin-right: 10px;">-->
+<!--                <button type="submit" class="clear-app-btn">Очистить заявку</button>-->
+<!--            </form>-->
+        </div>
+    </div>
+</main>
+</body>
+</html>
