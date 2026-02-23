@@ -11,6 +11,15 @@ import (
 type Config struct {
 	ServiceHost string
 	ServicePort int
+	Minio       MinioConfig
+}
+
+type MinioConfig struct {
+	Endpoint  string
+	AccessKey string
+	SecretKey string
+	Bucket    string
+	UseSSL    bool
 }
 
 func NewConfig() (*Config, error) {
@@ -39,6 +48,13 @@ func NewConfig() (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	// MinIO из env
+	cfg.Minio.Endpoint = os.Getenv("MINIO_ENDPOINT")
+	cfg.Minio.AccessKey = os.Getenv("MINIO_ACCESS_KEY")
+	cfg.Minio.SecretKey = os.Getenv("MINIO_SECRET_KEY")
+	cfg.Minio.Bucket = os.Getenv("MINIO_BUCKET")
+	cfg.Minio.UseSSL = os.Getenv("MINIO_USE_SSL") == "true"
 
 	log.Info("config parsed")
 

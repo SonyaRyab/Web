@@ -20,25 +20,6 @@ func (r *Repository) GetAllReagents() ([]ds.Reagent, error) {
 }
 
 func (r *Repository) GetReagentByID(id int) (*ds.Reagent, error) {
-	//query := "SELECT id, isDelete, img, name, formula, description, molarMass, coefficient, purity, price FROM reagents WHERE id = $1 and is_delete = false" // добавили условие
-
-	// Создание курсора (строковый указатель)
-	//row := r.db.Raw(query, id).Row()
-
-	// Создание объекта для хранения данных
-	//chat := &ds.Reagent{}
-
-	// Сканирование строки в структуру
-	//err := row.Scan(
-	//	&chat.ID,
-	//	&chat.Img,
-	//	&chat.Name,
-	//	&chat.Info,
-	//	&chat.Nickname,
-	//	&chat.Friends,
-	//	&chat.Subscribers,
-	//)
-
 	var reagent ds.Reagent
 	err := r.db.Where("id = ? AND is_delete = ?", id, false).First(&reagent).Error
 	if err != nil {

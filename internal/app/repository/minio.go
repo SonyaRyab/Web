@@ -12,6 +12,7 @@ type MinioClient struct {
 	Client     *minio.Client
 	BucketName string
 	Endpoint   string
+	UseSSL     bool
 }
 
 func NewMinioClient(endpoint, accessKey, secretKey, bucket string, useSSL bool) (*MinioClient, error) {
@@ -27,10 +28,19 @@ func NewMinioClient(endpoint, accessKey, secretKey, bucket string, useSSL bool) 
 		Client:     client,
 		BucketName: bucket,
 		Endpoint:   endpoint,
+		UseSSL:     useSSL,
 	}, nil
 }
 
 // GetFileURL возвращает публичный URL файла в Minio
 func (m *MinioClient) GetFileURL(objectName string) string {
-	return fmt.Sprintf("http://localhost:9000/%s/%s", m.BucketName, objectName)
+	if objectName == "" {
+		return ""
+	}
+
+	protocol := "http"
+	if m.UseSSL {
+		protocol = "https"
+	}
+	return fmt.Sprintf("%s://%s/%s/%s", protocol, m.Endpoint, m.BucketName, objectName)
 }

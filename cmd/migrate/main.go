@@ -18,7 +18,6 @@ func main() {
 
 	// Migrate the schema
 	err = db.AutoMigrate(
-		&ds.Order{},
 		&ds.Experiment{},
 		&ds.ExperimentReagent{},
 		&ds.Reagent{},

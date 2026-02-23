@@ -9,32 +9,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func (h *Handler) GetAllReagents(ctx *gin.Context) {
-	var reagents []ds.Reagent
-	var err error
-
-	search := ctx.Query("search")
-	if search == "" {
-		reagents, err = h.Repository.GetAllReagents()
-	} else {
-		reagents, err = h.Repository.SearchReagentsByName(search)
-	}
-
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"error": err.Error(),
-		})
-		logrus.Error(err)
-		return
-	}
-
-	ctx.HTML(http.StatusOK, "reagents.page.tmpl", gin.H{
-		"data":       reagents,
-		"cart_count": h.Repository.GetCartCount(),
-		"search":     search,
-	})
-}
-
 func (h *Handler) GetReagentById(ctx *gin.Context) {
 	strId := ctx.Param("id")
 	id, err := strconv.Atoi(strId)
@@ -55,7 +29,41 @@ func (h *Handler) GetReagentById(ctx *gin.Context) {
 		return
 	}
 
+	// Добавляем полный URL для изображения
+	reagent.Img = h.Repository.GetImageURL(reagent.Img)
+
 	ctx.HTML(http.StatusOK, "reagent.page.tmpl", reagent)
+}
+
+func (h *Handler) GetAllReagents(ctx *gin.Context) {
+	var reagents []ds.Reagent
+	var err error
+
+	search := ctx.Query("search")
+	if search == "" {
+		reagents, err = h.Repository.GetAllReagents()
+	} else {
+		reagents, err = h.Repository.SearchReagentsByName(search)
+	}
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		logrus.Error(err)
+		return
+	}
+
+	// Добавляем полные URL для изображений
+	for i := range reagents {
+		reagents[i].Img = h.Repository.GetImageURL(reagents[i].Img)
+	}
+
+	ctx.HTML(http.StatusOK, "reagents.page.tmpl", gin.H{
+		"data":       reagents,
+		"cart_count": h.Repository.GetCartCount(),
+		"search":     search,
+	})
 }
 
 func (h *Handler) AddToExperiment(ctx *gin.Context) {
