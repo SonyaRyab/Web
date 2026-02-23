@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Эксперимент {{ .experiment.ID }}</title>
+    <link rel="stylesheet" href="/styles/experiment_style.css">
+</head>
+<body>
+<header>
+    <div class="title-container">
+        <span class="calculator-title">Просмотр эксперимента</span>
+    </div>
+    <div class="home-link">
+        <a href="/reagents" class="calculate-btn" style="text-decoration: none;">Домой</a>
+    </div>
+</header>
+
+<main>
+    <div class="application-header">
+        <div class="application-info">
+            <div class="info-row">
+                <span class="info-label">Номер эксперимента:</span>
+                <span class="info-value">{{ .experiment.ID }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Дата создания:</span>
+                <span class="info-value">{{ .experiment.DateCreate.Format "02.01.2006 15:04" }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Статус:</span>
+                <span class="info-value status-{{ .experiment.Status }}">{{ .experiment.Status }}</span>
+            </div>
+        </div>
+
+        <!-- Поле результата вычислений -->
+        <div class="result-block">
+            <span class="result-label">Выход метана:</span>
+            <span class="result-value">{{ .methane_yield }}%</span>
+        </div>
+    </div>
+
+    <!-- Список реагентов в эксперименте -->
+    <h2 class="services-title">Реагенты в эксперименте</h2>
+    <div class="services-list">
+        {{ range .items }}
+        <div class="service-item">
+            <div class="service-card">
+                <div class="service-fields">
+                    <img src="{{ .Reagent.Img }}" alt="{{ .Reagent.Name }}" class="service-image" width="50" height="50">
+                    <span class="service-title">{{ .Reagent.Name }}</span>
+                    <span class="service-formula">{{ .Reagent.Formula }}</span>
+                    <span class="service-molar">М: {{ .Reagent.MolarMass }} г/моль</span>
+                </div>
+
+                <div class="service-mm-fields">
+                    <input type="hidden" name="item_id" value="{{ .ID }}">
+                    <div class="mm-field">
+                        <label>Кол-во:</label>
+                        <span class="mm-input">{{ .Quantity }} г</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{ else }}
+        <div class="empty-cart">
+            <p>В эксперименте нет реагентов</p>
+        </div>
+        {{ end }}
+    </div>
+
+    <div class="application-actions">
+        <form action="/delete-experiment" method="POST" style="display: inline; margin-right: 10px;">
+            <input type="hidden" name="experiment_id" value="{{ .experiment.ID }}">
+            <button type="submit" class="clear-app-btn">Удалить эксперимент</button>
+        </form>
+    </div>
+</main>
+</body>
+</html>

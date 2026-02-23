@@ -1,54 +1,54 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <title>Калькулятор синтеза метана (Реакция Сабатье)</title>
-    <link rel="stylesheet" href="/static/styles/order_style.css">
-</head>
-<body>
-<header>
-    <div class="title-container">
-        <span class="calculator-title">Калькулятор синтеза метана (Реакция Сабатье)</span>
-    </div>
-    <div class="home-link">
-        <a href="/hello" class="calculate-btn" style="text-decoration: none;">Домой</a>
-    </div>
-</header>
+<!--<!DOCTYPE html>-->
+<!--<html lang="ru">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <title>Калькулятор синтеза метана (Реакция Сабатье)</title>-->
+<!--    <link rel="stylesheet" href="/static/styles/order_style.css">-->
+<!--</head>-->
+<!--<body>-->
+<!--<header>-->
+<!--    <div class="title-container">-->
+<!--        <span class="calculator-title">Калькулятор синтеза метана (Реакция Сабатье)</span>-->
+<!--    </div>-->
+<!--    <div class="home-link">-->
+<!--        <a href="/hello" class="calculate-btn" style="text-decoration: none;">Домой</a>-->
+<!--    </div>-->
+<!--</header>-->
 
-<main class="order-main">
-    <div class="product-card">
-        <div class="product-title-container">
-            <div class="product-name">{{ .order.Title }}</div>
-        </div>
-        <div class="product-container">
-            <span class="detail-description">Формула: {{ .order.Formula }}</span>
+<!--<main class="order-main">-->
+<!--    <div class="product-card">-->
+<!--        <div class="product-title-container">-->
+<!--            <div class="product-name">{{ .order.Title }}</div>-->
+<!--        </div>-->
+<!--        <div class="product-container">-->
+<!--            <span class="detail-description">Формула: {{ .order.Formula }}</span>-->
 
-            <span class="detail-description">Молярная масса: {{ .order.MolarMass }} г/моль</span>
+<!--            <span class="detail-description">Молярная масса: {{ .order.MolarMass }} г/моль</span>-->
 
-            <span class="detail-description">Доступно: {{ .order.Available }} м3</span>
+<!--            <span class="detail-description">Доступно: {{ .order.Available }} м3</span>-->
 
-            <h1>
-                <div class="video-container" style="margin: 20px 0;">
-                    <video class="video-loop" autoplay muted loop playsinline disablePictureInPicture>
-                        <source src="{{ .order.Video }}" type="video/mp4">
-                    </video>
-                </div>
-            </h1>
+<!--            <h1>-->
+<!--                <div class="video-container" style="margin: 20px 0;">-->
+<!--                    <video class="video-loop" autoplay muted loop playsinline disablePictureInPicture>-->
+<!--                        <source src="{{ .order.Video }}" type="video/mp4">-->
+<!--                    </video>-->
+<!--                </div>-->
+<!--            </h1>-->
 
-            <div class="detail-description-2">Описание:</div>
-            <span class="detail-property">{{ .order.Description }}</span>
+<!--            <div class="detail-description-2">Описание:</div>-->
+<!--            <span class="detail-property">{{ .order.Description }}</span>-->
 
-            <span class="detail-description">Чистота: {{ .order.Purity }} %</span>
+<!--            <span class="detail-description">Чистота: {{ .order.Purity }} %</span>-->
 
-            <span class="detail-description">Дата поставки: {{ .order.DeliveryDate }}</span>
+<!--            <span class="detail-description">Дата поставки: {{ .order.DeliveryDate }}</span>-->
 
-            <div class="detail-description">
-                <div>Температура кипения: {{ .order.BoilingPoint }} °C</div>
-                <div>Температура плавления: {{ .order.MeltingPoint }} °C</div>
-                <div>Плотность: {{ .order.Density }} кг/м3</div>
-            </div>
-        </div>
-    </div>
-</main>
-</body>
-</html>
+<!--            <div class="detail-description">-->
+<!--                <div>Температура кипения: {{ .order.BoilingPoint }} °C</div>-->
+<!--                <div>Температура плавления: {{ .order.MeltingPoint }} °C</div>-->
+<!--                <div>Плотность: {{ .order.Density }} кг/м3</div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</main>-->
+<!--</body>-->
+<!--</html>-->

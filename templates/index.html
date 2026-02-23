@@ -1,84 +1,84 @@
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Калькулятор синтеза метана</title>
-    <link rel="stylesheet" href="/static/styles/index_style.css">
-</head>
-<body>
-<header>
-    <div class="title-container">
-        <span class="calculator-title">Калькулятор синтеза метана (Реакция Сабатье)</span>
-    </div>
-    <div class="cart-link">
-        {{ if .applications }}
-        {{ with index .applications 0 }}
-        <a href="/experiment/view/{{ .ID }}" class="calculate-btn" style="text-decoration: none;">
-            Текущая корзина
-        </a>
-        {{ end }}
-        {{ else }}
-<!--        <a href="/application/add?new=true" class="calculate-btn" style="text-decoration: none;">-->
-<!--            Создать заявку-->
+<!--<html lang="en">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <title>Калькулятор синтеза метана</title>-->
+<!--    <link rel="stylesheet" href="/static/styles/index_style.css">-->
+<!--</head>-->
+<!--<body>-->
+<!--<header>-->
+<!--    <div class="title-container">-->
+<!--        <span class="calculator-title">Калькулятор синтеза метана (Реакция Сабатье)</span>-->
+<!--    </div>-->
+<!--    <div class="cart-link">-->
+<!--        {{ if .applications }}-->
+<!--        {{ with index .applications 0 }}-->
+<!--        <a href="/experiment/view/{{ .ID }}" class="calculate-btn" style="text-decoration: none;">-->
+<!--            Текущая корзина-->
 <!--        </a>-->
-        <span class="calculate-btn" style="opacity: 0.5;">Нет заявок</span>
-        {{ end }}
-    </div>
-</header>
+<!--        {{ end }}-->
+<!--        {{ else }}-->
+<!--&lt;!&ndash;        <a href="/application/add?new=true" class="calculate-btn" style="text-decoration: none;">&ndash;&gt;-->
+<!--&lt;!&ndash;            Создать заявку&ndash;&gt;-->
+<!--&lt;!&ndash;        </a>&ndash;&gt;-->
+<!--        <span class="calculate-btn" style="opacity: 0.5;">Нет заявок</span>-->
+<!--        {{ end }}-->
+<!--    </div>-->
+<!--</header>-->
 
-<div class="search-container">
-    <form action="/hello" method="GET" class="search-form">
-        <input
-                type="text"
-                name="query"
-                placeholder="Поиск по названию..."
-                value="{{ .query }}"
-                class="search-input"
-        >
-        <button type="submit" class="search-button">Найти</button>
-        {{ if .query }}
-        <a href="/hello" class="clear-search"></a>
-        {{ end }}
-    </form>
-</div>
+<!--<div class="search-container">-->
+<!--    <form action="/hello" method="GET" class="search-form">-->
+<!--        <input-->
+<!--                type="text"-->
+<!--                name="query"-->
+<!--                placeholder="Поиск по названию..."-->
+<!--                value="{{ .query }}"-->
+<!--                class="search-input"-->
+<!--        >-->
+<!--        <button type="submit" class="search-button">Найти</button>-->
+<!--        {{ if .query }}-->
+<!--        <a href="/hello" class="clear-search"></a>-->
+<!--        {{ end }}-->
+<!--    </form>-->
+<!--</div>-->
 
-{{ if .applications }}
-{{ with index .applications 0 }}
-<div class="application-card">
-    <h3 class="product-name">Текущая заявка: {{ .ID }}</h3>
-    <p class="product-name" style="font-size: 16px; color: #666;">Услуг в заявке: {{ .TotalAmount }}</p>
-    <a href="/experiment/view/{{ .ID }}" class="calculate-btn" style="text-decoration: none; height: 50px; padding: 10px 30px; font-size: 16px;">Перейти к заявке</a>
-</div>
-{{ end }}
-{{ else }}
-<div class="application-card">
-    <h3>Нет активной заявки</h3>
-    <p>Заявок пока нет</p>
-</div>
-{{ end }}
+<!--{{ if .applications }}-->
+<!--{{ with index .applications 0 }}-->
+<!--<div class="application-card">-->
+<!--    <h3 class="product-name">Текущая заявка: {{ .ID }}</h3>-->
+<!--    <p class="product-name" style="font-size: 16px; color: #666;">Услуг в заявке: {{ .TotalAmount }}</p>-->
+<!--    <a href="/experiment/view/{{ .ID }}" class="calculate-btn" style="text-decoration: none; height: 50px; padding: 10px 30px; font-size: 16px;">Перейти к заявке</a>-->
+<!--</div>-->
+<!--{{ end }}-->
+<!--{{ else }}-->
+<!--<div class="application-card">-->
+<!--    <h3>Нет активной заявки</h3>-->
+<!--    <p>Заявок пока нет</p>-->
+<!--</div>-->
+<!--{{ end }}-->
 
-<div class="product-section">
-    {{ range .orders }}
-<!--    <a href="/order/{{ .ID }}" style="text-decoration: none;">-->
-        <div class="product-card" onclick="window.location.href='/order/{{ .ID }}'" style="cursor: pointer;">
-            <div class="product-title-container">
-                <div class="product-name">{{ .Title }}</div>
-            </div>
+<!--<div class="product-section">-->
+<!--    {{ range .orders }}-->
+<!--&lt;!&ndash;    <a href="/order/{{ .ID }}" style="text-decoration: none;">&ndash;&gt;-->
+<!--        <div class="product-card" onclick="window.location.href='/order/{{ .ID }}'" style="cursor: pointer;">-->
+<!--            <div class="product-title-container">-->
+<!--                <div class="product-name">{{ .Title }}</div>-->
+<!--            </div>-->
 
-            <div class="product-container">
-                <div class="product-formula">{{ .Formula }}</div>
-                <h1>
-                    <img src="{{ .Image }}" alt="{{ .Title }}" width="150px" height="150px">
-                </h1>
-<!--                <button class="add-to-cart">В корзину</button>-->
-                <form action="/experiment/add" method="POST" style="display: inline;">
-                    <input type="hidden" name="order_id" value="{{ .ID }}">
-                    <input type="hidden" name="app_id" value="APP-1">
-                    <button type="submit" class="add-to-cart">В корзину</button>
-                </form>
-            </div>
-        </div>
-    </a>
-    {{ end }}
-</div>
-</body>
-</html>
+<!--            <div class="product-container">-->
+<!--                <div class="product-formula">{{ .Formula }}</div>-->
+<!--                <h1>-->
+<!--                    <img src="{{ .Image }}" alt="{{ .Title }}" width="150px" height="150px">-->
+<!--                </h1>-->
+<!--&lt;!&ndash;                <button class="add-to-cart">В корзину</button>&ndash;&gt;-->
+<!--                <form action="/experiment/add" method="POST" style="display: inline;">-->
+<!--                    <input type="hidden" name="order_id" value="{{ .ID }}">-->
+<!--                    <input type="hidden" name="app_id" value="APP-1">-->
+<!--                    <button type="submit" class="add-to-cart">В корзину</button>-->
+<!--                </form>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </a>-->
+<!--    {{ end }}-->
+<!--</div>-->
+<!--</body>-->
+<!--</html>-->

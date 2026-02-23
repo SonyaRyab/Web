@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ .Name }} - Реагент</title>
+    <link rel="stylesheet" href="/styles/order_style.css">
+</head>
+<body>
+<header>
+    <div class="title-container">
+        <span class="calculator-title">Калькулятор синтеза метана (Реакция Сабатье)</span>
+    </div>
+    <div class="home-link">
+        <a href="/reagents" class="calculate-btn" style="text-decoration: none;">Домой</a>
+    </div>
+</header>
+
+<main class="order-main">
+    <div class="product-card">
+        <div class="product-title-container">
+            <div class="product-name">{{ .Name }}</div>
+        </div>
+        <div class="product-container">
+            <span class="detail-description">Формула: {{ .Formula }}</span>
+
+            <span class="detail-description">Молярная масса: {{ .MolarMass }} г/моль</span>
+
+            <span class="detail-description">Чистота: {{ .Purity }} %</span>
+
+            <h1>
+                <img src="{{ .Img }}" alt="{{ .Name }}" width="200px" height="200px">
+            </h1>
+
+            <div class="detail-description-2">Описание:</div>
+            <span class="detail-property">{{ .Description }}</span>
+
+            <span class="detail-description">Коэффициент в реакции: {{ .Coefficient }}</span>
+
+            <span class="detail-description">Цена: {{ .Price }} руб.</span>
+
+            <form action="/add-to-experiment" method="POST" style="margin-top: 20px;">
+                <input type="hidden" name="reagent_id" value="{{ .ID }}">
+                <div class="detail-description">
+                    <label>Количество (г):</label>
+                    <input type="number" name="quantity" value="1" step="0.1" min="0.1" style="width: 100px; padding: 5px;">
+                </div>
+                <button type="submit" class="add-to-cart" style="margin-top: 10px;">Добавить в эксперимент</button>
+            </form>
+        </div>
+    </div>
+</main>
+</body>
+</html>
