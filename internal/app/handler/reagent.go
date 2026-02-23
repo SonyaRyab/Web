@@ -29,8 +29,9 @@ func (h *Handler) GetReagentById(ctx *gin.Context) {
 		return
 	}
 
-	// Добавляем полный URL для изображения
+	// Добавляем полный URL для изображения и видео
 	reagent.Img = h.Repository.GetImageURL(reagent.Img)
+	reagent.Video = h.Repository.GetImageURL(reagent.Video)
 
 	ctx.HTML(http.StatusOK, "reagent.page.tmpl", reagent)
 }
@@ -57,6 +58,7 @@ func (h *Handler) GetAllReagents(ctx *gin.Context) {
 	// Добавляем полные URL для изображений
 	for i := range reagents {
 		reagents[i].Img = h.Repository.GetImageURL(reagents[i].Img)
+		reagents[i].Video = h.Repository.GetImageURL(reagents[i].Video)
 	}
 
 	ctx.HTML(http.StatusOK, "reagents.page.tmpl", gin.H{

@@ -106,7 +106,7 @@ func (r *Repository) GetImageURL(filename string) string {
 }
 
 func (r *Repository) getVideoURL(filename string) string {
-	if r.MinioClient != nil {
+	if r.MinioClient != nil && filename != "" {
 		return r.MinioClient.GetFileURL(filename)
 	}
 	return ""

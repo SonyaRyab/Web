@@ -4,6 +4,7 @@ type Reagent struct {
 	ID          int     `gorm:"primaryKey"`
 	IsDelete    bool    `gorm:"type:boolean not null;default:false"`
 	Img         string  `gorm:"type:varchar(100)"`
+	Video       string  `gorm:"type:varchar(100)"`
 	Name        string  `gorm:"type:varchar(25);not null"`
 	Formula     string  `gorm:"type:varchar(15);not null"`
 	Description string  `gorm:"type:varchar(200)"`

@@ -16,35 +16,70 @@
 </header>
 
 <main class="order-main">
-    <div class="product-card">
-        <div class="product-title-container">
-            <div class="product-name">{{ .Name }}</div>
+    <div class="wibes-card">
+        <div class="wibes-header">
+            <div class="wibes-avatar">
+                <img src="{{ .Img }}" alt="{{ .Name }}">
+            </div>
+            <div class="wibes-title-info">
+                <div class="wibes-name">{{ .Name }}</div>
+                <div class="wibes-formula">{{ .Formula }}</div>
+            </div>
         </div>
-        <div class="product-container">
-            <span class="detail-description">Формула: {{ .Formula }}</span>
 
-            <span class="detail-description">Молярная масса: {{ .MolarMass }} г/моль</span>
+        <div class="wibes-video-wrapper">
+            <video
+                class="wibes-video"
+                autoplay
+                muted
+                loop
+                playsinline
+                poster="{{ .Img }}"
+            >
+                <source src="{{ .Video }}" type="video/mp4">
+            </video>
 
-            <span class="detail-description">Чистота: {{ .Purity }} %</span>
-
-            <h1>
-                <img src="{{ .Img }}" alt="{{ .Name }}" width="200px" height="200px">
-            </h1>
-
-            <div class="detail-description-2">Описание:</div>
-            <span class="detail-property">{{ .Description }}</span>
-
-            <span class="detail-description">Коэффициент в реакции: {{ .Coefficient }}</span>
-
-            <span class="detail-description">Цена: {{ .Price }} руб.</span>
-
-            <form action="/add-to-experiment" method="POST" style="margin-top: 20px;">
-                <input type="hidden" name="reagent_id" value="{{ .ID }}">
-                <div class="detail-description">
-                    <label>Количество (г):</label>
-                    <input type="number" name="quantity" value="1" step="0.1" min="0.1" style="width: 100px; padding: 5px;">
+            <div class="wibes-actions">
+                <div class="wibes-action-btn">
+                    <span class="wibes-icon">❤️</span>
+                    <span class="wibes-count">1.2K</span>
                 </div>
-                <button type="submit" class="add-to-cart" style="margin-top: 10px;">Добавить в эксперимент</button>
+                <div class="wibes-action-btn">
+                    <span class="wibes-icon">💬</span>
+                    <span class="wibes-count">45</span>
+                </div>
+                <div class="wibes-action-btn">
+                    <span class="wibes-icon">🔖</span>
+                    <span class="wibes-count">12</span>
+                </div>
+                <div class="wibes-action-btn">
+                    <span class="wibes-icon">↗️</span>
+                    <span class="wibes-count">Поделиться</span>
+                </div>
+            </div>
+
+            <div class="wibes-video-info">
+                <div class="wibes-desc">{{ .Description }}</div>
+                <div class="wibes-stats">
+                    <span>М: {{ .MolarMass }} г/моль</span>
+                    <span>Чистота: {{ .Purity }}%</span>
+                    <span>Цена: {{ .Price }} ₽</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="wibes-product-bar">
+            <div class="wibes-product-thumb">
+                <img src="{{ .Img }}" alt="{{ .Name }}">
+            </div>
+            <div class="wibes-product-info">
+                <div class="wibes-product-name">{{ .Name }}</div>
+                <div class="wibes-product-price">{{ .Price }} ₽</div>
+            </div>
+            <form action="/add-to-experiment" method="POST" class="wibes-add-form">
+                <input type="hidden" name="reagent_id" value="{{ .ID }}">
+                <input type="hidden" name="quantity" value="1">
+                <button type="submit" class="wibes-add-btn">В корзину →</button>
             </form>
         </div>
     </div>
