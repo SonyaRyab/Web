@@ -127,6 +127,17 @@ header {
     align-items: center;
 }
 
+.cart-icon {
+    width: 32px;
+    height: 32px;
+    fill: white;
+    transition: transform 0.2s ease;
+}
+
+.cart-link a:hover .cart-icon {
+    transform: scale(1.1);
+}
+
 .cart-button {
     background-color: #001AFF;
     color: black;

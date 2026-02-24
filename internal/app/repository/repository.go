@@ -94,7 +94,7 @@ func (r *Repository) GetOrders() ([]Order, error) {
 			Formula:     "H2",
 			Coefficient: 4,
 			Image:       r.getImageURL("hydrogen.png"),
-			Video:       r.getVideoURL("sabatie_reaction.mp4"),
+			Video:       r.getVideoURL("sabatier_reaction.mp4"),
 			MolarMass:   "2",
 			Available:   100,
 			Description: "Водород - самый легкий химический элемент. " +
@@ -114,7 +114,7 @@ func (r *Repository) GetOrders() ([]Order, error) {
 			Formula:     "CO2",
 			Coefficient: 1,
 			Image:       r.getImageURL("CO2.png"),
-			Video:       r.getVideoURL("sabatie_reaction.mp4"),
+			Video:       r.getVideoURL("sabatier_reaction.mp4"),
 			MolarMass:   "44",
 			Available:   500,
 			Description: "Углекислый газ - бесцветный газ со слегка кисловатым запахом. " +
@@ -133,7 +133,7 @@ func (r *Repository) GetOrders() ([]Order, error) {
 			Formula:     "Ni",
 			Coefficient: 0,
 			Image:       r.getImageURL("nickel.png"),
-			Video:       r.getVideoURL("sabatie_reaction.mp4"),
+			Video:       r.getVideoURL("sabatier_reaction.mp4"),
 			MolarMass:   "59",
 			Available:   50,
 			Description: "Никель - переходный металл серебристо-белого цвета. " +
@@ -152,7 +152,7 @@ func (r *Repository) GetOrders() ([]Order, error) {
 			Formula:     "E",
 			Coefficient: 0,
 			Image:       r.getImageURL("energy.jpg"),
-			Video:       r.getVideoURL("sabatie_reaction.mp4"),
+			Video:       r.getVideoURL("sabatier_reaction.mp4"),
 			MolarMass:   "-",
 			Available:   10000,
 			Description: "Энергия для активации реакции Сабатье. " +
