@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Калькулятор синтеза метана (Реакция Сабатье)</title>
-    <link rel="stylesheet" href="/static/styles/order_style.css">
+    <link rel="stylesheet" href="/static/styles/reagent_style.css">
 </head>
 <body>
 <header>
@@ -15,17 +15,17 @@
     </div>
 </header>
 
-<main class="order-main">
+<main class="reagent-main">
     <div class="product-card">
         <div class="product-title-container">
-            <div class="product-name">{{ .order.Title }}</div>
+            <div class="product-name">{{ .reagent.Title }}</div>
         </div>
         <div class="product-container">
-            <span class="detail-description">Формула: {{ .order.Formula }}</span>
+            <span class="detail-description">Формула: {{ .reagent.Formula }}</span>
 
-            <span class="detail-description">Молярная масса: {{ .order.MolarMass }} г/моль</span>
+            <span class="detail-description">Молярная масса: {{ .reagent.MolarMass }} г/моль</span>
 
-            <span class="detail-description">Доступно: {{ .order.Available }} м3</span>
+            <span class="detail-description">Доступно: {{ .reagent.Available }} м3</span>
 
             <div class="wibes-video-wrapper">
                 <video
@@ -35,7 +35,7 @@
                         loop
                         playsinline
                 >
-                    <source src="{{ .order.Video }}" type="video/mp4">
+                    <source src="{{ .reagent.Video }}" type="video/mp4">
                 </video>
 
                 <div class="wibes-actions">
@@ -72,16 +72,16 @@
                 </div>
             </div>
 <!--            <div class="detail-description-2">Описание:</div>-->
-<!--            <span class="detail-property">{{ .order.Description }}</span>-->
+<!--            <span class="detail-property">{{ .reagent.Description }}</span>-->
 
-            <span class="detail-description">Чистота: {{ .order.Purity }} %</span>
+            <span class="detail-description">Чистота: {{ .reagent.Purity }} %</span>
 
-            <span class="detail-description">Дата поставки: {{ .order.DeliveryDate }}</span>
+            <span class="detail-description">Дата поставки: {{ .reagent.DeliveryDate }}</span>
 
             <div class="detail-description">
-                <div>Температура кипения: {{ .order.BoilingPoint }} °C</div>
-                <div>Температура плавления: {{ .order.MeltingPoint }} °C</div>
-                <div>Плотность: {{ .order.Density }} кг/м3</div>
+                <div>Температура кипения: {{ .reagent.BoilingPoint }} °C</div>
+                <div>Температура плавления: {{ .reagent.MeltingPoint }} °C</div>
+                <div>Плотность: {{ .reagent.Density }} кг/м3</div>
             </div>
         </div>
     </div>

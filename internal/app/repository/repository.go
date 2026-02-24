@@ -8,7 +8,7 @@ import (
 )
 
 type Repository struct {
-	orders       []Order
+	reagents     []Reagent
 	applications map[string]Experiment
 	MinioClient  *MinioClient // Добавляем Minio клиент
 	lastAppID    int          // для генерации ID
@@ -34,18 +34,18 @@ func NewRepository() (*Repository, error) {
 		lastAppID:    0,
 	}
 
-	orders, err := repo.GetOrders()
+	reagents, err := repo.GetReagents()
 	if err != nil {
 		return nil, err
 	}
-	repo.orders = orders
+	repo.reagents = reagents
 
 	repo.createTestApplication()
 
 	return repo, nil
 }
 
-type Order struct {
+type Reagent struct {
 	ID           int
 	Title        string // ОБЯЗАТЕЛЬНО должны быть написаны с заглавной буквы (то есть публичными)
 	Formula      string
@@ -76,7 +76,7 @@ type Experiment struct {
 // ExperimentItem - услуга в заявке
 type ExperimentItem struct {
 	ID          int
-	OrderID     int
+	ReagentID   int
 	Title       string
 	Formula     string
 	Image       string
@@ -86,8 +86,8 @@ type ExperimentItem struct {
 	Coefficient float64
 }
 
-func (r *Repository) GetOrders() ([]Order, error) {
-	orders := []Order{ // массив элементов из наших структур
+func (r *Repository) GetReagents() ([]Reagent, error) {
+	reagents := []Reagent{ // массив элементов из наших структур
 		{
 			ID:          1,
 			Title:       "Водород",
@@ -167,34 +167,29 @@ func (r *Repository) GetOrders() ([]Order, error) {
 			Comment:      "",
 		},
 	}
-	r.orders = orders
-	return orders, nil
+	r.reagents = reagents
+	return reagents, nil
 }
 
-func (r *Repository) GetOrder(id int) (Order, error) {
-	//orders, err := r.GetOrders()
-	//if err != nil {
-	//	return Order{}, err // тут у нас уже есть кастомная ошибка из нашего метода, поэтому мы можем просто вернуть ее
-	//}
-
-	for _, order := range r.orders {
-		if order.ID == id {
-			return order, nil // если нашли, то просто возвращаем найденный заказ (услугу) без ошибок
+func (r *Repository) GetReagent(id int) (Reagent, error) {
+	for _, reagent := range r.reagents {
+		if reagent.ID == id {
+			return reagent, nil // если нашли, то просто возвращаем найденный заказ (услугу) без ошибок
 		}
 	}
-	return Order{}, fmt.Errorf("заказ не найден") // тут нужна кастомная ошибка, чтобы понимать на каком этапе возникла ошибка и что произошло
+	return Reagent{}, fmt.Errorf("заказ не найден") // тут нужна кастомная ошибка, чтобы понимать на каком этапе возникла ошибка и что произошло
 }
 
-func (r *Repository) GetOrdersByTitle(title string) ([]Order, error) {
-	orders, err := r.GetOrders()
+func (r *Repository) GetReagentsByTitle(title string) ([]Reagent, error) {
+	reagents, err := r.GetReagents()
 	if err != nil {
-		return []Order{}, err
+		return []Reagent{}, err
 	}
 
-	var result []Order
-	for _, order := range orders {
-		if strings.Contains(strings.ToLower(order.Title), strings.ToLower(title)) {
-			result = append(result, order)
+	var result []Reagent
+	for _, reagent := range reagents {
+		if strings.Contains(strings.ToLower(reagent.Title), strings.ToLower(title)) {
+			result = append(result, reagent)
 		}
 	}
 
@@ -234,19 +229,19 @@ func (r *Repository) createTestApplication() {
 }
 
 // Добавление услуги в заявку
-func (r *Repository) AddToExperiment(appID string, orderID int) error {
+func (r *Repository) AddToExperiment(appID string, reagentID int) error {
 	app, exists := r.applications[appID]
 	if !exists {
 		return fmt.Errorf("заявка не найдена")
 	}
 
-	order, err := r.GetOrder(orderID)
+	reagent, err := r.GetReagent(reagentID)
 	if err != nil {
 		return err
 	}
 
 	for i, item := range app.Items {
-		if item.OrderID == orderID {
+		if item.ReagentID == reagentID {
 			app.Items[i].Quantity++
 			app.TotalAmount++
 			r.applications[appID] = app
@@ -256,11 +251,11 @@ func (r *Repository) AddToExperiment(appID string, orderID int) error {
 
 	newItem := ExperimentItem{
 		ID:        len(app.Items) + 1,
-		OrderID:   order.ID,
-		Title:     order.Title,
-		Formula:   order.Formula,
-		Image:     order.Image,
-		MolarMass: order.MolarMass,
+		ReagentID: reagent.ID,
+		Title:     reagent.Title,
+		Formula:   reagent.Formula,
+		Image:     reagent.Image,
+		MolarMass: reagent.MolarMass,
 		Quantity:  1,
 		Comment:   "",
 	}

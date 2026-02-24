@@ -23,8 +23,8 @@ func StartServer() {
 	r.LoadHTMLGlob("C:/GolandProjects/lab1/templates/*")
 	r.Static("/static", "C:/GolandProjects/lab1/resources")
 
-	r.GET("/hello", handler.GetOrders)                   //список услуг
-	r.GET("/order/:id", handler.GetOrder)                //детальная страница услуги
+	r.GET("/hello", handler.GetReagents)                 //список услуг
+	r.GET("/reagent/:id", handler.GetReagent)            //детальная страница услуги
 	r.GET("/experiment/view/:id", handler.GetExperiment) //страница заявки
 
 	//r.POST("/experiment/add", handler.AddToExperiment)

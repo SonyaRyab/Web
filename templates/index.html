@@ -63,9 +63,9 @@
 {{ end }}
 
 <div class="product-section">
-    {{ range .orders }}
-<!--    <a href="/order/{{ .ID }}" style="text-decoration: none;">-->
-        <div class="product-card" onclick="window.location.href='/order/{{ .ID }}'" style="cursor: pointer;">
+    {{ range .reagents }}
+<!--    <a href="/reagent/{{ .ID }}" style="text-decoration: none;">-->
+        <div class="product-card" onclick="window.location.href='/reagent/{{ .ID }}'" style="cursor: pointer;">
             <div class="product-title-container">
                 <div class="product-name">{{ .Title }}</div>
             </div>

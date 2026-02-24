@@ -20,16 +20,16 @@ func NewHandler(r *repository.Repository) *Handler {
 	}
 }
 
-func (h *Handler) GetOrders(ctx *gin.Context) {
+func (h *Handler) GetReagents(ctx *gin.Context) {
 	// Получаем параметр поиска из URL: /hello?query=
-	var orders []repository.Order
+	var reagents []repository.Reagent
 	var err error
 
 	searchQuery := ctx.Query("query")
 	if searchQuery == "" { // Если параметр пустой — показываем все услуги
-		orders, err = h.Repository.GetOrders()
+		reagents, err = h.Repository.GetReagents()
 	} else { // Иначе фильтруем по названию (поиск подстроки без учета регистра)
-		orders, err = h.Repository.GetOrdersByTitle(searchQuery)
+		reagents, err = h.Repository.GetReagentsByTitle(searchQuery)
 	}
 	if err != nil {
 		logrus.Error(err)
@@ -43,27 +43,27 @@ func (h *Handler) GetOrders(ctx *gin.Context) {
 	// Сохраняем query для отображения в поле поиска после запроса
 	ctx.HTML(http.StatusOK, "index.html", gin.H{
 		"time":         time.Now().Format("15:04:05"),
-		"orders":       orders,
+		"reagents":     reagents,
 		"query":        searchQuery, //сохраняет поле поиска после запроса
 		"applications": apps,        // Передаем заявки в шаблон
 		"minioBaseUrl": "http://localhost:9000/lab1-images/",
 	})
 }
 
-func (h *Handler) GetOrder(ctx *gin.Context) {
+func (h *Handler) GetReagent(ctx *gin.Context) {
 	idStr := ctx.Param("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		logrus.Error(err)
 	}
 
-	order, err := h.Repository.GetOrder(id)
+	reagent, err := h.Repository.GetReagent(id)
 	if err != nil {
 		logrus.Error(err)
 	}
 
-	ctx.HTML(http.StatusOK, "order.html", gin.H{
-		"order": order,
+	ctx.HTML(http.StatusOK, "reagent.html", gin.H{
+		"reagent": reagent,
 	})
 }
 
