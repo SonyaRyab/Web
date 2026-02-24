@@ -32,41 +32,51 @@
             </div>
         </div>
 
-        <!-- Поле результата вычислений -->
         <div class="result-block">
             <span class="result-label">Выход метана:</span>
             <span class="result-value">{{ .methane_yield }}%</span>
         </div>
     </div>
 
-    <!-- Список реагентов в эксперименте -->
     <h2 class="services-title">Реагенты в эксперименте</h2>
-    <div class="services-list">
-        {{ range .items }}
-        <div class="service-item">
-            <div class="service-card">
-                <div class="service-fields">
-                    <img src="{{ .Reagent.Img }}" alt="{{ .Reagent.Name }}" class="service-image" width="50" height="50">
-                    <span class="service-title">{{ .Reagent.Name }}</span>
-                    <span class="service-formula">{{ .Reagent.Formula }}</span>
-                    <span class="service-molar">М: {{ .Reagent.MolarMass }} г/моль</span>
-                </div>
 
-                <div class="service-mm-fields">
-                    <input type="hidden" name="item_id" value="{{ .ID }}">
-                    <div class="mm-field">
-                        <label>Кол-во:</label>
-                        <span class="mm-input">{{ .Quantity }} г</span>
-                    </div>
-                </div>
-            </div>
+    {{ if .items }}
+    <div class="table-header-card">
+        <div class="table-header-row">
+            <div class="header-cell header-image">Изображение</div>
+            <div class="header-cell header-name">Название</div>
+            <div class="header-cell header-formula">Формула</div>
+            <div class="header-cell header-molar">Молярная масса</div>
+            <div class="header-cell header-quantity">Количество</div>
         </div>
-        {{ else }}
-        <div class="empty-cart">
-            <p>В эксперименте нет реагентов</p>
+    </div>
+
+    <div class="table-body">
+        {{ range .items }}
+        <div class="table-data-row">
+            <div class="data-cell cell-image">
+                <img src="{{ .Reagent.Img }}" alt="{{ .Reagent.Name }}" class="reagent-image" width="50" height="50">
+            </div>
+            <div class="data-cell cell-name">
+                <span class="reagent-name">{{ .Reagent.Name }}</span>
+            </div>
+            <div class="data-cell cell-formula">
+                <span class="reagent-formula">{{ .Reagent.Formula }}</span>
+            </div>
+            <div class="data-cell cell-molar">
+                <span class="reagent-molar">{{ .Reagent.MolarMass }} г/моль</span>
+            </div>
+            <div class="data-cell cell-quantity">
+                <span class="reagent-quantity">{{ .Quantity }} г</span>
+            </div>
         </div>
         {{ end }}
     </div>
+    {{ else }}
+    <div class="empty-cart">
+        <p>В эксперименте нет реагентов</p>
+    </div>
+    {{ end }}
 
     <div class="application-actions">
         <form action="/delete-experiment" method="POST" style="display: inline; margin-right: 10px;">

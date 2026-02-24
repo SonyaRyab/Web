@@ -40,21 +40,24 @@
             </video>
 
             <div class="wibes-actions">
-                <div class="wibes-action-btn">
-                    <span class="wibes-icon">❤️</span>
-                    <span class="wibes-count">1.2K</span>
+                <div class="wibes-action-btn" onclick="calculateYield()">
+                    <span class="wibes-icon">🔥</span>
+                    <span class="wibes-count">Рассчитать CH₄</span>
                 </div>
-                <div class="wibes-action-btn">
-                    <span class="wibes-icon">💬</span>
-                    <span class="wibes-count">45</span>
+
+                <div class="wibes-action-btn" onclick="document.getElementById('addForm').submit()">
+                    <span class="wibes-icon">⚗️</span>
+                    <span class="wibes-count">В реакцию</span>
                 </div>
-                <div class="wibes-action-btn">
-                    <span class="wibes-icon">🔖</span>
-                    <span class="wibes-count">12</span>
+
+                <div class="wibes-action-btn" onclick="showConditions()">
+                    <span class="wibes-icon">🌡️</span>
+                    <span class="wibes-count">Условия</span>
                 </div>
-                <div class="wibes-action-btn">
-                    <span class="wibes-icon">↗️</span>
-                    <span class="wibes-count">Поделиться</span>
+
+                <div class="wibes-action-btn" onclick="showCatalystInfo()">
+                    <span class="wibes-icon">⚛️</span>
+                    <span class="wibes-count">Катализатор</span>
                 </div>
             </div>
 
@@ -63,7 +66,9 @@
                 <div class="wibes-stats">
                     <span>М: {{ .MolarMass }} г/моль</span>
                     <span>Чистота: {{ .Purity }}%</span>
-                    <span>Цена: {{ .Price }} ₽</span>
+                    {{ if eq .Formula "H2" }}<span>⚡ Восстановитель</span>{{ end }}
+                    {{ if eq .Formula "CO2" }}<span>🔄 Исходное в-во</span>{{ end }}
+                    {{ if eq .Formula "Ni" }}<span>⚡ Катализатор</span>{{ end }}
                 </div>
             </div>
         </div>
@@ -74,7 +79,6 @@
             </div>
             <div class="wibes-product-info">
                 <div class="wibes-product-name">{{ .Name }}</div>
-                <div class="wibes-product-price">{{ .Price }} ₽</div>
             </div>
             <form action="/add-to-experiment" method="POST" class="wibes-add-form">
                 <input type="hidden" name="reagent_id" value="{{ .ID }}">

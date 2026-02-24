@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Russo+One&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Russo+One&display=swap ');
 
 * {
     margin: 0;
@@ -156,103 +156,140 @@ header {
     margin-bottom: 20px;
 }
 
-.services-list {
+/* Стили для таблицы реагентов */
+.table-header-card {
+    background-color: #f5f5f5;
+    border-radius: 10px 10px 0 0;
+    padding: 15px 20px;
+    margin-bottom: 2px;
+    border: 1px solid #e0e0e0;
+    border-bottom: 2px solid #001AFF;
+}
+
+.table-header-row {
+    display: grid;
+    grid-template-columns: 80px 1fr 120px 150px 120px;
+    align-items: center;
+    gap: 15px;
+}
+
+.header-cell {
+    font-family: 'Russo One';
+    font-size: 14px;
+    color: #666;
+    text-align: center;
+}
+
+.header-image {
+    text-align: center;
+}
+
+.header-name {
+    text-align: left;
+    padding-left: 10px;
+}
+
+.header-formula {
+    text-align: center;
+}
+
+.header-molar {
+    text-align: center;
+}
+
+.header-quantity {
+    text-align: center;
+}
+
+.table-body {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 2px;
     margin-bottom: 30px;
 }
 
-.service-item {
+.table-data-row {
+    display: grid;
+    grid-template-columns: 80px 1fr 120px 150px 120px;
+    align-items: center;
+    gap: 15px;
     background-color: white;
-    border-radius: 10px;
-    padding: 15px;
+    padding: 15px 20px;
     transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.service-item:hover {
+.table-data-row:first-child {
+    border-radius: 0 0 10px 10px;
+}
+
+.table-data-row:not(:first-child) {
+    border-radius: 10px;
+    margin-top: 8px;
+}
+
+.table-data-row:hover {
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(0,0,0,0.1);
 }
 
-.service-card {
+.data-cell {
+    text-align: center;
+}
+
+.cell-image {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
 }
 
-.service-fields {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    flex: 2;
-}
-
-.service-image {
+.reagent-image {
     border-radius: 5px;
     object-fit: cover;
 }
 
-.service-title {
+.cell-name {
+    text-align: left;
+    padding-left: 10px;
+}
+
+.reagent-name {
+    font-family: 'Russo One';
+    font-size: 16px;
+    color: #000;
+}
+
+.cell-formula {
+    text-align: center;
+}
+
+.reagent-formula {
     font-family: 'Russo One';
     font-size: 18px;
-    min-width: 120px;
-}
-
-.service-formula {
-    font-family: 'Russo One';
-    font-size: 20px;
     color: #001AFF;
-    min-width: 80px;
 }
 
-.service-molar {
+.cell-molar {
+    text-align: center;
+}
+
+.reagent-molar {
     font-family: 'Russo One';
     font-size: 14px;
     color: #666;
 }
 
-.service-mm-fields {
-    display: flex;
-    gap: 15px;
-    align-items: center;
-    flex: 1;
-}
-
-.mm-field {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 5px;
-}
-
-.mm-field label {
-    font-family: 'Russo One';
-    font-size: 12px;
-    color: #666;
-}
-
-.mm-input {
-    width: 70px;
-    padding: 5px;
-    border: 2px solid #C2E9F1;
-    border-radius: 5px;
-    font-family: 'Russo One';
+.cell-quantity {
     text-align: center;
 }
 
-.mm-input:focus {
-    outline: none;
-    border-color: #001AFF;
-}
-
-.mm-select {
-    width: 90px;
-    padding: 5px;
-    border: 2px solid #C2E9F1;
-    border-radius: 5px;
+.reagent-quantity {
     font-family: 'Russo One';
-    background-color: white;
+    font-size: 16px;
+    color: #000;
+    background-color: #C2E9F1;
+    padding: 8px 15px;
+    border-radius: 5px;
+    display: inline-block;
 }
 
 .application-actions {
