@@ -22,16 +22,7 @@
                 <span class="info-label">Номер эксперимента:</span>
                 <span class="info-value">{{ .methane.ID }}</span>
             </div>
-            <div class="info-row">
-                <span class="info-label">Дата создания:</span>
-                <span class="info-value">{{ .methane.DateCreate.Format "02.01.2006 15:04" }}</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">Статус:</span>
-                <span class="info-value status-{{ .methane.Status }}">{{ .methane.Status }}</span>
-            </div>
         </div>
-
         <div class="result-block">
             <span class="result-label">Выход метана:</span>
             <span class="result-value">{{ .methane_yield }}%</span>
@@ -74,14 +65,14 @@
     </div>
     {{ else }}
     <div class="empty-cart">
-        <p>В эксперименте нет реагентов</p>
+        <p>Нет реагентов</p>
     </div>
     {{ end }}
 
     <div class="application-actions">
         <form action="/delete-methane" method="POST" style="display: inline; margin-right: 10px;">
             <input type="hidden" name="methane_id" value="{{ .methane.ID }}">
-            <button type="submit" class="clear-app-btn">Удалить эксперимент</button>
+            <button type="submit" class="clear-app-btn">Удалить Метан</button>
         </form>
     </div>
 </main>

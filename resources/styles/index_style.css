@@ -323,23 +323,64 @@ header {
 
 .calculate-btn {
     background-color: #001AFF;
-    color: black;
+    color: white;
     border: none;
     height: 64px;
     padding: 0 30px;
     border-radius: 10px;
     font-size: 20px;
     cursor: pointer;
-    display: flex;
+    display: inline-flex;
     text-align: center;
     align-items: center;
     justify-content: center;
     margin: 0 auto;
     font-family: "Russo One";
+    text-decoration: none;
+    z-index: 100;
 }
 
 .calculate-btn:hover {
     background-color: #0017D4FF;
+}
+
+/*.calculate-btn.disabled {*/
+/*    background-color: #ccc;*/
+/*    border-color: #999;*/
+/*}*/
+
+.cart-active {
+    background-color: #001AFF;
+    cursor: pointer;
+    pointer-events: auto !important;
+}
+
+.cart-active:hover {
+    background-color: #0017D4;
+    transform: translateY(-2px);
+}
+
+.cart-disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.cart-disabled .cart-icon {
+    fill: #666666;
+}
+
+.cart-badge {
+    background: red;
+    color: white;
+    border-radius: 50%;
+    padding: 2px 8px;
+    margin-right: 8px;
+    font-size: 14px;
+    font-weight: bold;
+    min-width: 24px;
+    text-align: center;
 }
 
 .cart-icon {
@@ -349,6 +390,6 @@ header {
     transition: transform 0.2s ease;
 }
 
-.cart-link a:hover .cart-icon {
+.cart-active:hover .cart-icon {
     transform: scale(1.1);
 }
