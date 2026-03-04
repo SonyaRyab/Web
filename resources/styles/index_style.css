@@ -213,25 +213,25 @@ header {
     align-items: center;
 }
 
-.cart-button {
-    background-color: #001AFF;
-    color: black;
-    border: none;
-    padding: 12px 30px;
-    border-radius: 10px;
-    font-size: 20px;
-    cursor: pointer;
-    display: inline-block;
-    margin: 0 auto;
-    font-family: 'Russo One';
-    text-decoration: none;
-    text-align: center;
-    transition: background-color 0.3s;
-}
+/*.cart-button {*/
+/*    background-color: #001AFF;*/
+/*    color: black;*/
+/*    border: none;*/
+/*    padding: 12px 30px;*/
+/*    border-radius: 10px;*/
+/*    font-size: 20px;*/
+/*    cursor: pointer;*/
+/*    display: inline-block;*/
+/*    margin: 0 auto;*/
+/*    font-family: 'Russo One';*/
+/*    text-decoration: none;*/
+/*    text-align: center;*/
+/*    transition: background-color 0.3s;*/
+/*}*/
 
-.cart-button:hover {
-    background-color: #0017D4FF;
-}
+/*.cart-button:hover {*/
+/*    background-color: #0017D4FF;*/
+/*}*/
 
 .product-section {
     display: flex;
@@ -336,4 +336,15 @@ header {
 
 .calculate-btn:hover {
     background-color: #0017D4FF;
+}
+
+.cart-icon {
+    width: 32px;
+    height: 32px;
+    fill: white;
+    transition: transform 0.2s ease;
+}
+
+.cart-link a:hover .cart-icon {
+    transform: scale(1.1);
 }

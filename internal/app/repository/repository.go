@@ -11,7 +11,7 @@ import (
 
 type Repository struct {
 	db           *gorm.DB
-	applications map[string]Experiment
+	applications map[string]Methane
 	MinioClient  *MinioClient // Добавляем Minio клиент
 	lastAppID    int          // для генерации ID
 }
@@ -74,18 +74,18 @@ func New(dsn string, cfg *config.Config) (*Repository, error) {
 //	return repo, nil
 //}
 
-type Experiment struct {
+type Methane struct {
 	ID          string
 	CreatedAt   string
 	Customer    string
 	Status      string
-	Items       []ExperimentItem
+	Items       []MethaneItem
 	TotalAmount int
 	Result      string
 }
 
 // ExperimentItem - услуга в заявке
-type ExperimentItem struct {
+type MethaneItem struct {
 	ID          int
 	OrderID     int
 	Title       string
@@ -116,12 +116,12 @@ func (r *Repository) createTestApplication() {
 	r.lastAppID++
 	appID := fmt.Sprintf("EXP-%d", r.lastAppID)
 
-	app := Experiment{
+	app := Methane{
 		ID:          appID,
 		CreatedAt:   time.Now().Format("02.01.2006 15:04"),
 		Customer:    "Иванов И.И.",
 		Status:      "В обработке",
-		Items:       []ExperimentItem{},
+		Items:       []MethaneItem{},
 		TotalAmount: 0,
 		Result:      "CH4 - 95% выход",
 	}
@@ -129,17 +129,17 @@ func (r *Repository) createTestApplication() {
 	r.applications[appID] = app
 }
 
-func (r *Repository) GetExperiment(appID string) (Experiment, error) {
+func (r *Repository) GetMethane(appID string) (Methane, error) {
 	app, exists := r.applications[appID]
 	if !exists {
-		return Experiment{}, fmt.Errorf("заявка не найдена")
+		return Methane{}, fmt.Errorf("заявка не найдена")
 	}
 	return app, nil
 }
 
 // Получение списка всех заявок
-func (r *Repository) GetExperiments() ([]Experiment, error) {
-	apps := make([]Experiment, 0, len(r.applications))
+func (r *Repository) GetMethanes() ([]Methane, error) {
+	apps := make([]Methane, 0, len(r.applications))
 	for _, app := range r.applications {
 		apps = append(apps, app)
 	}
@@ -147,16 +147,16 @@ func (r *Repository) GetExperiments() ([]Experiment, error) {
 }
 
 // Создание заявки
-func (r *Repository) CreateExperiment(customer string) (string, error) {
+func (r *Repository) CreateMethane(customer string) (string, error) {
 	r.lastAppID++
 	appID := fmt.Sprintf("APP-%d", r.lastAppID)
 
-	app := Experiment{
+	app := Methane{
 		ID:          appID,
 		CreatedAt:   time.Now().Format("02.01.2006 15:04"),
 		Customer:    customer,
 		Status:      "Новая",
-		Items:       []ExperimentItem{},
+		Items:       []MethaneItem{},
 		TotalAmount: 0,
 		Result:      "Ожидание расчета",
 	}
@@ -166,7 +166,7 @@ func (r *Repository) CreateExperiment(customer string) (string, error) {
 }
 
 // Обновление поля м-м для услуги в заявке
-func (r *Repository) UpdateExperimentItem(appID string, itemID int, quantity int, comment string) error {
+func (r *Repository) UpdateMethaneItem(appID string, itemID int, quantity int, comment string) error {
 	app, exists := r.applications[appID]
 	if !exists {
 		return fmt.Errorf("заявка не найдена")
@@ -184,7 +184,7 @@ func (r *Repository) UpdateExperimentItem(appID string, itemID int, quantity int
 	return fmt.Errorf("элемент не найден")
 }
 
-func (r *Repository) RemoveFromExperiment(appID string, itemID int) error {
+func (r *Repository) RemoveFromMethane(appID string, itemID int) error {
 	app, exists := r.applications[appID]
 	if !exists {
 		return fmt.Errorf("заявка не найдена")
@@ -203,13 +203,13 @@ func (r *Repository) RemoveFromExperiment(appID string, itemID int) error {
 	return fmt.Errorf("элемент не найден в заявке")
 }
 
-func (r *Repository) ClearExperiment(appID string) error {
+func (r *Repository) ClearMethane(appID string) error {
 	app, exists := r.applications[appID]
 	if !exists {
 		return fmt.Errorf("заявка не найдена")
 	}
 
-	app.Items = []ExperimentItem{}
+	app.Items = []MethaneItem{}
 	app.TotalAmount = 0
 	r.applications[appID] = app
 	return nil

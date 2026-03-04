@@ -12,7 +12,7 @@ import (
 
 func (r *Repository) GetAllReagents() ([]ds.Reagent, error) {
 	var reagents []ds.Reagent
-	err := r.db.Where("is_delete = false").Find(&reagents).Error // добавили условие
+	err := r.db.Where("is_deleted = false").Find(&reagents).Error // добавили условие
 	if err != nil {
 		return nil, err
 	}
@@ -21,7 +21,7 @@ func (r *Repository) GetAllReagents() ([]ds.Reagent, error) {
 
 func (r *Repository) GetReagentByID(id int) (*ds.Reagent, error) {
 	var reagent ds.Reagent
-	err := r.db.Where("id = ? AND is_delete = ?", id, false).First(&reagent).Error
+	err := r.db.Where("id = ? AND is_deleted = ?", id, false).First(&reagent).Error
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil // Возвращаем nil, если записи нет
@@ -33,7 +33,7 @@ func (r *Repository) GetReagentByID(id int) (*ds.Reagent, error) {
 
 func (r *Repository) SearchReagentsByName(name string) ([]ds.Reagent, error) {
 	var reagents []ds.Reagent
-	err := r.db.Where("name ILIKE ? and is_delete = ?", "%"+name+"%", false).Find(&reagents).Error // добавили условие
+	err := r.db.Where("name ILIKE ? and is_deleted = ?", "%"+name+"%", false).Find(&reagents).Error // добавили условие
 	if err != nil {
 		return nil, err
 	}
@@ -44,17 +44,17 @@ func (r *Repository) SearchReagentsByName(name string) ([]ds.Reagent, error) {
 func (r *Repository) GetCartCount() int64 {
 	var experimentID uint
 	var count int64
-	creatorID := 1
+	adminID := 1
 	// пока что мы захардкодили id создателя заявки, в последующем вы сделаете авторизацию и будете получать его из JWT
 
-	err := r.db.Model(&ds.Experiment{}).
-		Where("creator_id = ? AND status = ?", creatorID, "черновик").
+	err := r.db.Model(&ds.Methane{}).
+		Where("admin_id = ? AND status = ?", adminID, "черновик").
 		Select("id").First(&experimentID).Error
 	if err != nil {
 		return 0
 	}
 
-	err = r.db.Model(&ds.ExperimentReagent{}).
+	err = r.db.Model(&ds.MethaneReagent{}).
 		Where("experiment_id = ?", experimentID).
 		Count(&count).Error
 	if err != nil {
@@ -65,7 +65,7 @@ func (r *Repository) GetCartCount() int64 {
 }
 
 func (r *Repository) DeleteReagent(reagentID uint) error {
-	query := "UPDATE reagents SET is_delete = true WHERE id = $1"
+	query := "UPDATE reagents SET is_deleted = true WHERE id = $1"
 	result := r.db.Exec(query, reagentID)
 
 	if result.Error != nil {
@@ -80,16 +80,16 @@ func (r *Repository) DeleteReagent(reagentID uint) error {
 }
 
 // GetDraftExperimentID - получить ID черновика или создать новый
-func (r *Repository) GetDraftExperimentID(creatorID uint) (uint, error) {
-	var exp ds.Experiment
-	err := r.db.Where("creator_id = ? AND status = ?", creatorID, "черновик").First(&exp).Error
+func (r *Repository) GetDraftMethaneID(adminID uint) (uint, error) {
+	var exp ds.Methane
+	err := r.db.Where("admin_id = ? AND status = ?", adminID, "черновик").First(&exp).Error
 
 	if err != nil {
 		// Создаём новый черновик
-		exp = ds.Experiment{
+		exp = ds.Methane{
 			Status:     "черновик",
 			DateCreate: time.Now(),
-			CreatorID:  creatorID,
+			AdminID:    adminID,
 		}
 		err = r.db.Create(&exp).Error
 		if err != nil {
@@ -101,10 +101,10 @@ func (r *Repository) GetDraftExperimentID(creatorID uint) (uint, error) {
 }
 
 // AddReagentToExperiment - добавить реагент в заявку (ORM)
-func (r *Repository) AddReagentToExperiment(experimentID, reagentID uint, quantity float64) error {
+func (r *Repository) AddReagentToMethane(methaneID, reagentID uint, quantity float64) error {
 	// Проверяем, есть ли уже такой реагент
-	var existing ds.ExperimentReagent
-	err := r.db.Where("experiment_id = ? AND reagent_id = ?", experimentID, reagentID).First(&existing).Error
+	var existing ds.MethaneReagent
+	err := r.db.Where("methane_id = ? AND reagent_id = ?", methaneID, reagentID).First(&existing).Error
 
 	if err == nil {
 		// Уже есть — обновляем количество
@@ -113,28 +113,32 @@ func (r *Repository) AddReagentToExperiment(experimentID, reagentID uint, quanti
 	}
 
 	// Новая запись
-	item := ds.ExperimentReagent{
-		ExperimentID: experimentID,
-		ReagentID:    reagentID,
-		Quantity:     quantity,
-		OrderNum:     1, // можно добавить логику подсчёта
+	item := ds.MethaneReagent{
+		Methane_id: methaneID,
+		Reagent_id: reagentID,
+		Quantity:   quantity,
+		//OrderNum:  1, // можно добавить логику подсчёта
 	}
 
 	return r.db.Create(&item).Error
 }
 
 // GetExperimentWithReagents - получить заявку со всеми реагентами
-func (r *Repository) GetExperimentWithReagents(expID uint) (*ds.Experiment, []ds.ExperimentReagent, error) {
-	var exp ds.Experiment
+func (r *Repository) GetMethaneWithReagents(expID uint) (*ds.Methane, []ds.MethaneReagent, error) {
+	var exp ds.Methane
 	err := r.db.First(&exp, expID).Error
 	if err != nil {
 		return nil, nil, err
 	}
 
-	var items []ds.ExperimentReagent
-	err = r.db.Where("experiment_id = ?", expID).Find(&items).Error
+	var items []ds.MethaneReagent
+	err = r.db.Where("methane_id = ?", expID).Preload("Reagent").Find(&items).Error
 	if err != nil {
 		return nil, nil, err
+	}
+
+	for i := range items {
+		items[i].Reagent.Img = r.GetImageURL(items[i].Reagent.Img)
 	}
 
 	return &exp, items, nil
@@ -142,9 +146,9 @@ func (r *Repository) GetExperimentWithReagents(expID uint) (*ds.Experiment, []ds
 
 // CalculateMethaneYield - рассчитать выход метана по реакции Сабатье
 // CO2 + 4H2 → CH4 + 2H2O
-func (r *Repository) CalculateMethaneYield(experimentID uint) (float64, error) {
-	var items []ds.ExperimentReagent
-	err := r.db.Where("experiment_id = ?", experimentID).Preload("Reagent").Find(&items).Error
+func (r *Repository) CalculateMethaneYield(methaneID uint) (float64, error) {
+	var items []ds.MethaneReagent
+	err := r.db.Where("methane_id = ?", methaneID).Preload("Reagent").Find(&items).Error
 	if err != nil {
 		return 0, err
 	}
@@ -189,8 +193,8 @@ func (r *Repository) CalculateMethaneYield(experimentID uint) (float64, error) {
 	return yield, nil
 }
 
-func (r *Repository) DeleteExperiment(expID uint) error {
-	query := "UPDATE experiments SET status = 'удалён', date_update = NOW() WHERE id = $1 AND status = 'черновик'"
+func (r *Repository) DeleteMethane(expID uint) error {
+	query := "UPDATE methanes SET status = 'удалён', date_update = NOW() WHERE id = $1 AND status = 'черновик'"
 	result := r.db.Exec(query, expID)
 
 	if result.Error != nil {

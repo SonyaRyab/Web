@@ -24,11 +24,11 @@ func NewHandler(r *repository.Repository) *Handler {
 func (h *Handler) RegisterHandler(router *gin.Engine) {
 	router.GET("/reagents", h.GetAllReagents)
 	router.GET("/reagents/:id", h.GetReagentById)
-	router.GET("/experiment", h.GetCurrentExperiment)
+	router.GET("/methane", h.GetCurrentMethane)
 	// 1 POST через ORM (добавление в заявку)
-	router.POST("/add-to-experiment", h.AddToExperiment)
+	router.POST("/add-to-methane", h.AddToMethane)
 	// 1 POST через SQL UPDATE (удаление заявки)
-	router.POST("/delete-experiment", h.DeleteExperiment)
+	router.POST("/delete-methane", h.DeleteMethane)
 }
 
 // RegisterStatic То же самое, что и с маршрутами, регистрируем статику
@@ -47,7 +47,7 @@ func (h *Handler) errorHandler(ctx *gin.Context, errorStatusCode int, err error)
 	})
 }
 
-func (h *Handler) UpdateExperimentItem(ctx *gin.Context) {
+func (h *Handler) UpdateMethaneItem(ctx *gin.Context) {
 	appID := ctx.Param("id")
 
 	itemIDStr := ctx.PostForm("item_id")
@@ -68,7 +68,7 @@ func (h *Handler) UpdateExperimentItem(ctx *gin.Context) {
 		return
 	}
 
-	err = h.Repository.UpdateExperimentItem(appID, itemID, quantity, comment)
+	err = h.Repository.UpdateMethaneItem(appID, itemID, quantity, comment)
 	if err != nil {
 		logrus.Error(err)
 	}
@@ -77,7 +77,7 @@ func (h *Handler) UpdateExperimentItem(ctx *gin.Context) {
 }
 
 // Удаление услуги из заявки
-func (h *Handler) RemoveFromExperiment(ctx *gin.Context) {
+func (h *Handler) RemoveFromMethane(ctx *gin.Context) {
 	appID := ctx.Param("app_id")
 	itemIDStr := ctx.Param("item_id")
 
@@ -88,7 +88,7 @@ func (h *Handler) RemoveFromExperiment(ctx *gin.Context) {
 		return
 	}
 
-	err = h.Repository.RemoveFromExperiment(appID, itemID)
+	err = h.Repository.RemoveFromMethane(appID, itemID)
 	if err != nil {
 		logrus.Error(err)
 	}
@@ -100,7 +100,7 @@ func (h *Handler) RemoveFromExperiment(ctx *gin.Context) {
 func (h *Handler) ClearApplication(ctx *gin.Context) {
 	appID := ctx.Param("id")
 
-	err := h.Repository.ClearExperiment(appID)
+	err := h.Repository.ClearMethane(appID)
 	if err != nil {
 		logrus.Error(err)
 	}

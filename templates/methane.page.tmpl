@@ -2,8 +2,8 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Эксперимент {{ .experiment.ID }}</title>
-    <link rel="stylesheet" href="/styles/experiment_style.css">
+    <title>Эксперимент {{ .methane.ID }}</title>
+    <link rel="stylesheet" href="/styles/methane_style.css">
 </head>
 <body>
 <header>
@@ -20,15 +20,15 @@
         <div class="application-info">
             <div class="info-row">
                 <span class="info-label">Номер эксперимента:</span>
-                <span class="info-value">{{ .experiment.ID }}</span>
+                <span class="info-value">{{ .methane.ID }}</span>
             </div>
             <div class="info-row">
                 <span class="info-label">Дата создания:</span>
-                <span class="info-value">{{ .experiment.DateCreate.Format "02.01.2006 15:04" }}</span>
+                <span class="info-value">{{ .methane.DateCreate.Format "02.01.2006 15:04" }}</span>
             </div>
             <div class="info-row">
                 <span class="info-label">Статус:</span>
-                <span class="info-value status-{{ .experiment.Status }}">{{ .experiment.Status }}</span>
+                <span class="info-value status-{{ .methane.Status }}">{{ .methane.Status }}</span>
             </div>
         </div>
 
@@ -79,8 +79,8 @@
     {{ end }}
 
     <div class="application-actions">
-        <form action="/delete-experiment" method="POST" style="display: inline; margin-right: 10px;">
-            <input type="hidden" name="experiment_id" value="{{ .experiment.ID }}">
+        <form action="/delete-methane" method="POST" style="display: inline; margin-right: 10px;">
+            <input type="hidden" name="methane_id" value="{{ .methane.ID }}">
             <button type="submit" class="clear-app-btn">Удалить эксперимент</button>
         </form>
     </div>

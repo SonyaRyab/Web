@@ -8,7 +8,9 @@
 
 body {
     font-family: Arial, sans-serif;
-    background-color: #BCD4F7;
+    /*background-color: #BCD4F7;*/
+    background: linear-gradient(135deg, #C8E6F5 0%, #B8D4F0 50%, #C5C9F0 100%);
+    min-height: 100vh;
     padding: 20px;
     max-width: 1200px;
     margin: 0 auto;

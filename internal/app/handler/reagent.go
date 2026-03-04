@@ -68,7 +68,7 @@ func (h *Handler) GetAllReagents(ctx *gin.Context) {
 	})
 }
 
-func (h *Handler) AddToExperiment(ctx *gin.Context) {
+func (h *Handler) AddToMethane(ctx *gin.Context) {
 	reagentIDStr := ctx.PostForm("reagent_id")
 	quantityStr := ctx.PostForm("quantity")
 
@@ -84,15 +84,15 @@ func (h *Handler) AddToExperiment(ctx *gin.Context) {
 	}
 
 	// Получаем или создаём черновик
-	creatorID := uint(1) // захардкодили
-	expID, err := h.Repository.GetDraftExperimentID(creatorID)
+	adminID := uint(1) // захардкодили
+	expID, err := h.Repository.GetDraftMethaneID(adminID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
 	// Добавляем реагент
-	err = h.Repository.AddReagentToExperiment(expID, uint(reagentID), quantity)
+	err = h.Repository.AddReagentToMethane(expID, uint(reagentID), quantity)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -102,40 +102,40 @@ func (h *Handler) AddToExperiment(ctx *gin.Context) {
 }
 
 // GetCurrentExperiment - GET /experiment (ORM)
-func (h *Handler) GetCurrentExperiment(ctx *gin.Context) {
-	creatorID := uint(1)
-	expID, err := h.Repository.GetDraftExperimentID(creatorID)
+func (h *Handler) GetCurrentMethane(ctx *gin.Context) {
+	adminID := uint(1)
+	methaneID, err := h.Repository.GetDraftMethaneID(adminID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	exp, items, err := h.Repository.GetExperimentWithReagents(expID)
+	methane, items, err := h.Repository.GetMethaneWithReagents(methaneID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
 	// Рассчитываем выход метана
-	methaneYield, _ := h.Repository.CalculateMethaneYield(expID)
+	methaneYield, _ := h.Repository.CalculateMethaneYield(methaneID)
 
-	ctx.HTML(http.StatusOK, "experiment.page.tmpl", gin.H{
-		"experiment":    exp,
+	ctx.HTML(http.StatusOK, "methane.page.tmpl", gin.H{
+		"methane":       methane,
 		"items":         items,
 		"methane_yield": methaneYield,
 	})
 }
 
-func (h *Handler) DeleteExperiment(ctx *gin.Context) {
+func (h *Handler) DeleteMethane(ctx *gin.Context) {
 	// считываем значение из формы, которую мы добавим в наш шаблон
-	expIDStr := ctx.PostForm("experiment_id")
-	expID, err := strconv.ParseUint(expIDStr, 10, 32)
+	methaneIDStr := ctx.PostForm("methane_id")
+	methaneID, err := strconv.ParseUint(methaneIDStr, 10, 32)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
 		})
 	}
-	err = h.Repository.DeleteExperiment(uint(expID))
+	err = h.Repository.DeleteMethane(uint(methaneID))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
