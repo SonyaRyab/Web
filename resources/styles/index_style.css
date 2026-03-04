@@ -7,13 +7,12 @@
 }
 
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Russo One';
     background: linear-gradient(135deg, #D4F1F4 0%, #B8E0F0 50%, #C5D5F0 100%);
     min-height: 100vh;
-    /*background-color: #BCD4F7;*/
-    padding: 20px;
-    max-width: 1200px;
-    margin: 0 auto;
+    padding: 0;
+    /*max-width: 1200px;*/
+    margin: 0;
 }
 
 header {
@@ -28,10 +27,38 @@ header {
     width: 100%;
 }
 
-.search-container {
+.full-width-header {
+    width: 100%;
+    background: #FEF7DF;
+    padding: 20px 0;
+    margin-bottom: 30px;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.header-title {
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: center;
+    font-family: 'Russo One';
+    font-size: 28px;
+    color: #FBBF2E;
+    padding: 0 20px;
+}
+
+.tools-panel {
+    max-width: 1200px;
+    margin: 0 auto 30px;
     display: flex;
-    justify-content: center;
-    margin-bottom: 40px;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    padding: 0 20px;
+}
+
+.search-container {
+    flex: 1;
+    max-width: 600px;
 }
 
 .search-form {
@@ -190,8 +217,6 @@ header {
     justify-content: center;
     width: 750px;
     height: 70px;
-    /*margin: 0 auto;*/
-    /*position: relative;*/
     grid-column: 2;
     justify-self: center;
 }
@@ -210,37 +235,18 @@ header {
 .cart-link {
     grid-column: 3;
     justify-self: end;
-    /*margin-left: auto;*/
     display: flex;
     align-items: center;
 }
 
-/*.cart-button {*/
-/*    background-color: #001AFF;*/
-/*    color: black;*/
-/*    border: none;*/
-/*    padding: 12px 30px;*/
-/*    border-radius: 10px;*/
-/*    font-size: 20px;*/
-/*    cursor: pointer;*/
-/*    display: inline-block;*/
-/*    margin: 0 auto;*/
-/*    font-family: 'Russo One';*/
-/*    text-decoration: none;*/
-/*    text-align: center;*/
-/*    transition: background-color 0.3s;*/
-/*}*/
-
-/*.cart-button:hover {*/
-/*    background-color: #0017D4FF;*/
-/*}*/
-
 .product-section {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(3, 300px);
     flex-wrap: wrap;
     gap: 30px;
-    justify-content: flex-start;
-    margin-bottom: 40px;
+    justify-content: center;
+    margin: 0 auto 40px;
+    padding: 0 20px;
 }
 
 .product-card {

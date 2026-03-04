@@ -6,26 +6,27 @@
     <link rel="stylesheet" href="/styles/index_style.css">
 </head>
 <body>
-<header>
-    <div class="title-container">
-        <span class="calculator-title">Калькулятор синтеза метана (Реакция Сабатье)</span>
-    </div>
+<header class="full-width-header">
+    <div class="header-title">Калькулятор синтеза метана (Реакция Сабатье)</div>
 </header>
 
-<div class="search-container">
-    <form action="/reagents" method="GET" class="search-form">
-        <input
+<div class="tools-panel">
+    <div class="search-container">
+        <form action="/reagents" method="GET" class="search-form">
+            <input
                 type="text"
                 name="search"
                 placeholder="Поиск по названию..."
                 value="{{ .search }}"
                 class="search-input"
-        >
-        <button type="submit" class="search-button">Найти</button>
-        {{ if .search }}
-        <a href="/reagents" class="clear-search"></a>
-        {{ end }}
-    </form>
+            >
+            <button type="submit" class="search-button">Найти</button>
+            {{ if .search }}
+            <a href="/reagents" class="clear-search"></a>
+            {{ end }}
+        </form>
+    </div>
+
     <div class="cart-link">
         <a href="/methane" class="calculate-btn" style="text-decoration: none;">
             {{ if ne .cart_count 0 }}
