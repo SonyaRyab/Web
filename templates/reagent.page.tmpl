@@ -40,9 +40,13 @@
             </video>
 
             <div class="wibes-actions">
-                <div class="wibes-action-btn" onclick="calculateYield()">
+                <div class="wibes-action-btn" onclick="document.getElementById('methane-form-{{ .ID }}').submit(); calculateYield()">
                     <span class="wibes-icon">🔥</span>
-                    <span class="wibes-count">Рассчитать CH₄</span>
+                    <span class="wibes-count">В корзину</span>
+                    <form id="methane-form-{{ .ID }}" action="/add-to-methane" method="POST">
+                        <input type="hidden" name="reagent_id" value="{{ .ID }}">
+                        <input type="hidden" name="quantity" value="1">
+                    </form>
                 </div>
 
                 <div class="wibes-action-btn" onclick="document.getElementById('addForm').submit()">
