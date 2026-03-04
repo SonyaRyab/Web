@@ -7,7 +7,9 @@
 }
 
 body {
-    background-color: #BCD4F7;
+    background: linear-gradient(135deg, #D4F1F4 0%, #B8E0F0 50%, #C5D5F0 100%);
+    min-height: 100vh;
+    /*background-color: #BCD4F7;*/
     padding: 20px;
     max-width: 1200px;
     margin: 0 auto;
@@ -113,7 +115,7 @@ header {
     border-radius: 10px;
     font-family: "Russo One";
     text-decoration: none;
-    color: black;
+    color: white;
 }
 
 .back-button:hover {

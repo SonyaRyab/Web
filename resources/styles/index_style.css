@@ -8,7 +8,9 @@
 
 body {
     font-family: Arial, sans-serif;
-    background-color: #BCD4F7;
+    background: linear-gradient(135deg, #D4F1F4 0%, #B8E0F0 50%, #C5D5F0 100%);
+    min-height: 100vh;
+    /*background-color: #BCD4F7;*/
     padding: 20px;
     max-width: 1200px;
     margin: 0 auto;
@@ -237,7 +239,7 @@ header {
     display: flex;
     flex-wrap: wrap;
     gap: 30px;
-    justify-content: center;
+    justify-content: flex-start;
     margin-bottom: 40px;
 }
 

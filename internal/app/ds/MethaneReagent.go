@@ -7,8 +7,6 @@ type MethaneReagent struct {
 	Formula    string `gorm:"type:varchar(15);not null"`
 	// Дополнительные поля м-м
 	Quantity float64 `gorm:"type:decimal(10,2);not null"`
-	//ActualAmount float64 `gorm:"type:decimal(10,2)"`
-	//OrderNum     int        `gorm:"default:1"`
-	Methane Methane `gorm:"foreignKey:MethaneID"`
-	Reagent Reagent `gorm:"foreignKey:ReagentID"`
+	Methane  Methane `gorm:"foreignKey:MethaneID"`
+	Reagent  Reagent `gorm:"foreignKey:ReagentID"`
 }
