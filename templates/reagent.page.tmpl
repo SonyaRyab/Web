@@ -58,37 +58,17 @@
                     <span class="wibes-icon">🌡️</span>
                     <span class="wibes-count">Условия</span>
                 </div>
-
-                <div class="wibes-action-btn" onclick="showCatalystInfo()">
-                    <span class="wibes-icon">⚛️</span>
-                    <span class="wibes-count">Катализатор</span>
-                </div>
             </div>
 
             <div class="wibes-video-info">
                 <div class="wibes-desc">{{ .Description }}</div>
                 <div class="wibes-stats">
                     <span>М: {{ .MolarMass }} г/моль</span>
-                    <span>Чистота: {{ .Purity }}%</span>
-                    {{ if eq .Formula "H2" }}<span>⚡ Восстановитель</span>{{ end }}
-                    {{ if eq .Formula "CO2" }}<span>🔄 Исходное в-во</span>{{ end }}
-                    {{ if eq .Formula "Ni" }}<span>⚡ Катализатор</span>{{ end }}
+                    {{ if eq .Formula "H2" }}<span>Восстановитель</span>{{ end }}
+                    {{ if eq .Formula "CO2" }}<span>Исходное в-во</span>{{ end }}
+                    {{ if eq .Formula "Ni" }}<span>Катализатор</span>{{ end }}
                 </div>
             </div>
-        </div>
-
-        <div class="wibes-product-bar">
-            <div class="wibes-product-thumb">
-                <img src="{{ .Img }}" alt="{{ .Name }}">
-            </div>
-            <div class="wibes-product-info">
-                <div class="wibes-product-name">{{ .Name }}</div>
-            </div>
-            <form action="/add-to-methane" method="POST" class="wibes-add-form">
-                <input type="hidden" name="reagent_id" value="{{ .ID }}">
-                <input type="hidden" name="quantity" value="1">
-                <button type="submit" class="wibes-add-btn">В корзину →</button>
-            </form>
         </div>
     </div>
 </main>
