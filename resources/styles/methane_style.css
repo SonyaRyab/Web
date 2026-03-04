@@ -51,7 +51,7 @@ header {
 
 .calculate-btn {
     background-color: #001AFF;
-    color: black;
+    color: white;
     border: none;
     height: 70px;
     padding: 15px 50px;
@@ -64,6 +64,7 @@ header {
     justify-content: center;
     margin: 0 auto;
     font-family: "Russo One";
+    text-decoration: none;
 }
 
 .calculate-btn:hover {
