@@ -36,24 +36,24 @@ header {
 .product-card {
     background-color: white;
     border-radius: 10px;
-    padding: 30px 10px;
+    padding: 8px 0;
     display: flex;
     flex-direction: column;
     align-items: center;
     /*min-height: 400px;*/
-    width: 90%;
+    width: 100%;
     max-width: 600px;
     margin: 0 auto;
 }
 
 .product-container {
     background-color: #C2E9F1;
-    padding: 10px 20px;
+    padding: 8px 12px;
     text-align: center;
     border-radius: 10px;
     display: inline-block;
     height: auto;
-    max-width: 460px;
+    max-width: 560px;
     width: 100%;
     margin: 0 auto;
 }
@@ -212,6 +212,64 @@ header {
 
 /* === СТИЛИ WIBES === */
 
+/* === ИСПРАВЛЕННЫЕ СТИЛИ WIBES - ДАННЫЕ ВМЕСТО КНОПОК === */
+
+.wibes-data-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #fff;
+    margin-bottom: 15px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+.wibes-data-item .wibes-icon {
+    font-size: 28px;
+    margin-bottom: 4px;
+}
+
+.wibes-data-item .wibes-count {
+    font-family: 'Russo One';
+    font-size: 16px;
+    margin-bottom: 2px;
+}
+
+.wibes-data-item .wibes-label {
+    font-family: 'Russo One';
+    font-size: 10px;
+    color: #ccc;
+    text-transform: uppercase;
+}
+
+/* Температурная информация в нижней панели */
+.wibes-temp-info {
+    display: flex;
+    flex: 1;
+    justify-content: space-around;
+    gap: 15px;
+}
+
+.temp-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.temp-label {
+    font-family: 'Russo One';
+    font-size: 10px;
+    color: #666;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+
+.temp-value {
+    font-family: 'Russo One';
+    font-size: 14px;
+    color: #000;
+}
+
 .wibes-card {
     background-color: #000;
     border-radius: 20px;
@@ -283,7 +341,7 @@ header {
 }
 
 /* Кнопки справа (как в Wibes) */
-.wibes-actions {
+/* .wibes-actions {
     position: absolute;
     right: 15px;
     bottom: 20px;
@@ -291,7 +349,7 @@ header {
     flex-direction: column;
     gap: 10px;
     z-index: 10;
-}
+} */
 
 .wibes-action-btn {
     display: flex;

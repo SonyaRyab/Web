@@ -103,7 +103,7 @@ func (r *Repository) GetReagents() ([]Reagent, error) {
 				"Хранится под высоким давлением в специальных баллонах.",
 			Purity:       99.999,
 			DeliveryDate: "15.04.2026",
-			BoilingPoint: -252,
+			BoilingPoint: 252,
 			MeltingPoint: -259,
 			Density:      89,
 			Comment:      "",

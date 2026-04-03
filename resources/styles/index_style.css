@@ -7,18 +7,16 @@
 }
 
 body {
-    font-family: Arial, sans-serif;
-    background-color: #BCD4F7;
-    padding: 20px;
-    max-width: 1200px;
-    margin: 0 auto;
+    font-family: 'Russo One';
+    background: linear-gradient(135deg, #D4F1F4 0%, #B8E0F0 50%, #C5D5F0 100%);
+    min-height: 100vh;
+    padding: 0;
+    margin: 0;
 }
 
 header {
     display: grid;
     grid-template-columns: 1fr auto 1fr;
-    /*display: flex;*/
-    /*justify-content: space-between;*/
     align-items: center;
     margin-bottom: 20px;
     padding: 20px 0;
@@ -26,10 +24,42 @@ header {
     width: 100%;
 }
 
-.search-container {
+.full-width-header {
+    width: 100%;
+    background: #FEF7DF;
+    padding: 20px 0;
+    margin-bottom: 30px;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     display: flex;
     justify-content: center;
-    margin-bottom: 40px;
+    align-items: center;
+}
+
+.header-title {
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: center;
+    font-family: 'Russo One';
+    font-size: 28px;
+    color: #000000;
+    padding: 0 20px;
+}
+
+.tools-panel {
+    max-width: 1200px;
+    margin: 0 auto 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    padding: 0 20px;
+    position: relative;
+}
+
+.search-container {
+    flex: 1;
+    max-width: 600px;
 }
 
 .search-form {
@@ -39,7 +69,7 @@ header {
     border-radius: 10px;
     padding: 5px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    width: 500px;
+    width: 600px;
     position: relative;
 }
 
@@ -159,11 +189,13 @@ header {
 }
 
 .product-section {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(3, 300px);
     flex-wrap: wrap;
     gap: 30px;
     justify-content: center;
-    margin-bottom: 40px;
+    margin: 0 auto 40px;
+    padding: 0 20px;
 }
 
 .product-card {
@@ -244,21 +276,64 @@ header {
 
 .calculate-btn {
     background-color: #001AFF;
-    color: black;
+    color: white;
     border: none;
-    height: 70px;
-    padding: 15px 50px;
+    height: 64px;
+    padding: 0 30px;
     border-radius: 10px;
     font-size: 20px;
     cursor: pointer;
-    display: flex;
-    text-align: center;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto;
     font-family: "Russo One";
+    text-decoration: none;
+    flex-shrink: 0;
 }
 
 .calculate-btn:hover {
     background-color: #0017D4FF;
+}
+
+.cart-active {
+    background-color: #001AFF;
+    cursor: pointer;
+}
+
+.cart-active:hover {
+    background-color: #0017D4;
+    transform: translateY(-2px);
+}
+
+.cart-disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.cart-disabled .cart-icon {
+    fill: #666666;
+}
+
+.cart-badge {
+    background: red;
+    color: white;
+    border-radius: 50%;
+    padding: 2px 8px;
+    margin-right: 8px;
+    font-size: 14px;
+    font-weight: bold;
+    min-width: 24px;
+    text-align: center;
+}
+
+.cart-icon {
+    width: 32px;
+    height: 32px;
+    fill: white;
+    transition: transform 0.2s ease;
+}
+
+.cart-active:hover .cart-icon {
+    transform: scale(1.1);
 }

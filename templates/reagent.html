@@ -17,9 +17,6 @@
 
 <main class="reagent-main">
     <div class="product-card">
-        <div class="product-title-container">
-            <div class="product-name">{{ .reagent.Title }}</div>
-        </div>
         <div class="product-container">
             <span class="detail-description">Формула: {{ .reagent.Formula }}</span>
 
@@ -39,12 +36,18 @@
                 </video>
 
                 <div class="wibes-actions">
-                    <div class="wibes-action-btn" onclick="calculateYield()">
+                    <div class="wibes-action-btn">
                         <span class="wibes-icon">🔥</span>
-                        <span class="wibes-count">Рассчитать CH₄</span>
+                        <span class="wibes-count">Рассчитать CH4</span>
                     </div>
 
-                    <div class="wibes-action-btn" onclick="document.getElementById('addForm').submit()">
+                    <div class="wibes-action-btn">
+                        <span class="wibes-icon">📦</span>
+                        <span class="wibes-count">{{ .reagent.Available }}</span>
+                        <span class="wibes-label">м3 доступно</span>
+                    </div>
+
+                    <div class="wibes-action-btn">
                         <span class="wibes-icon">⚗️</span>
                         <span class="wibes-count">В реакцию</span>
                     </div>
@@ -55,9 +58,9 @@
                     <div class="wibes-stats">
                         <span>М: {{ .reagent.MolarMass }} г/моль</span>
                         <span>Чистота: {{ .reagent.Purity }}%</span>
-                        {{ if eq .Formula "H2" }}<span>⚡ Восстановитель</span>{{ end }}
+                        {{ if eq .Formula "H2" }}<span>⚡️ Восстановитель</span>{{ end }}
                         {{ if eq .Formula "CO2" }}<span>🔄 Исходное в-во</span>{{ end }}
-                        {{ if eq .Formula "Ni" }}<span>⚡ Катализатор</span>{{ end }}
+                        {{ if eq .Formula "Ni" }}<span>⚡️ Катализатор</span>{{ end }}
                     </div>
                 </div>
             </div>

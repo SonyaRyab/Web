@@ -20,8 +20,8 @@ func StartServer() {
 	handler := handler.NewHandler(repo)
 
 	r := gin.Default()
-	r.LoadHTMLGlob("C:/GolandProjects/lab1/templates/*")
-	r.Static("/static", "C:/GolandProjects/lab1/resources")
+	r.LoadHTMLGlob("C:/VSCodeProjects/WEB/lab1/templates/*")
+	r.Static("/static", "C:/VSCodeProjects/WEB/lab1/resources")
 
 	r.GET("/hello", handler.GetReagents)                 //список услуг
 	r.GET("/reagent/:id", handler.GetReagent)            //детальная страница услуги
