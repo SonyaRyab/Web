@@ -37,15 +37,19 @@ func (h *Handler) GetReagents(ctx *gin.Context) {
 
 	apps, _ := h.Repository.GetExperiments()
 
-	for i := range apps {
-		apps[i].TotalAmount = len(apps[i].Items)
-	}
+	cartCount := 0
+    for i := range apps {
+        apps[i].TotalAmount = len(apps[i].Items)
+        cartCount += len(apps[i].Items)
+    }
+
 	// Сохраняем query для отображения в поле поиска после запроса
 	ctx.HTML(http.StatusOK, "index.html", gin.H{
 		"time":         time.Now().Format("15:04:05"),
 		"reagents":     reagents,
 		"query":        searchQuery, //сохраняет поле поиска после запроса
 		"applications": apps,        // Передаем заявки в шаблон
+		"cart_count":   cartCount,
 		"minioBaseUrl": "http://localhost:9000/lab1-images/",
 	})
 }

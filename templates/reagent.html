@@ -18,12 +18,6 @@
 <main class="reagent-main">
     <div class="product-card">
         <div class="product-container">
-            <span class="detail-description">Формула: {{ .reagent.Formula }}</span>
-
-            <span class="detail-description">Молярная масса: {{ .reagent.MolarMass }} г/моль</span>
-
-            <span class="detail-description">Доступно: {{ .reagent.Available }} м3</span>
-
             <div class="wibes-video-wrapper">
                 <video
                         class="wibes-video"
@@ -35,46 +29,13 @@
                     <source src="{{ .reagent.Video }}" type="video/mp4">
                 </video>
 
-                <div class="wibes-actions">
-                    <div class="wibes-action-btn">
-                        <span class="wibes-icon">🔥</span>
-                        <span class="wibes-count">Рассчитать CH4</span>
-                    </div>
-
-                    <div class="wibes-action-btn">
-                        <span class="wibes-icon">📦</span>
-                        <span class="wibes-count">{{ .reagent.Available }}</span>
-                        <span class="wibes-label">м3 доступно</span>
-                    </div>
-
-                    <div class="wibes-action-btn">
-                        <span class="wibes-icon">⚗️</span>
-                        <span class="wibes-count">В реакцию</span>
-                    </div>
-                </div>
-
-                <div class="video-description">
+                <div class="video-description">                    
                     <div class="wibes-desc">{{ .reagent.Description }}</div>
-                    <div class="wibes-stats">
-                        <span>М: {{ .reagent.MolarMass }} г/моль</span>
-                        <span>Чистота: {{ .reagent.Purity }}%</span>
-                        {{ if eq .Formula "H2" }}<span>⚡️ Восстановитель</span>{{ end }}
-                        {{ if eq .Formula "CO2" }}<span>🔄 Исходное в-во</span>{{ end }}
-                        {{ if eq .Formula "Ni" }}<span>⚡️ Катализатор</span>{{ end }}
-                    </div>
+                    <div class="wibes-desc">Молярная масса: {{ .reagent.MolarMass}} г/моль</div>
+                    <div class="wibes-desc">Доступно: {{ .reagent.Available}} м3</div>
+                    <div class="wibes-desc">Температура кипения: {{ .reagent.BoilingPoint }} °C</div>
+                    <div class="wibes-desc">Плотность: {{ .reagent.Density }} кг/м3</div>
                 </div>
-            </div>
-<!--            <div class="detail-description-2">Описание:</div>-->
-<!--            <span class="detail-property">{{ .reagent.Description }}</span>-->
-
-<!--            <span class="detail-description">Чистота: {{ .reagent.Purity }} %</span>-->
-
-            <span class="detail-description">Дата поставки: {{ .reagent.DeliveryDate }}</span>
-
-            <div class="detail-description">
-                <div>Температура кипения: {{ .reagent.BoilingPoint }} °C</div>
-                <div>Температура плавления: {{ .reagent.MeltingPoint }} °C</div>
-                <div>Плотность: {{ .reagent.Density }} кг/м3</div>
             </div>
         </div>
     </div>
