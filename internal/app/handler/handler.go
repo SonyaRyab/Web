@@ -38,10 +38,17 @@ func (h *Handler) GetReagents(ctx *gin.Context) {
 	apps, _ := h.Repository.GetExperiments()
 
 	cartCount := 0
-    for i := range apps {
-        apps[i].TotalAmount = len(apps[i].Items)
-        cartCount += len(apps[i].Items)
-    }
+	cartID := ""
+
+	if len(apps) > 0 {
+		cartID = apps[0].ID
+		cartCount = len(apps[0].Items)
+	}
+
+    // for i := range apps {
+    //     apps[i].TotalAmount = len(apps[i].Items)
+    //     cartCount += len(apps[i].Items)
+    // }
 
 	// Сохраняем query для отображения в поле поиска после запроса
 	ctx.HTML(http.StatusOK, "index.html", gin.H{
@@ -50,6 +57,7 @@ func (h *Handler) GetReagents(ctx *gin.Context) {
 		"query":        searchQuery, //сохраняет поле поиска после запроса
 		"applications": apps,        // Передаем заявки в шаблон
 		"cart_count":   cartCount,
+		"cart_id":      cartID,
 		"minioBaseUrl": "http://localhost:9000/lab1-images/",
 	})
 }
