@@ -7,30 +7,54 @@
 }
 
 body {
-    background-color: #BCD4F7;
-    padding: 20px;
-    max-width: 1200px;
-    margin: 0 auto;
+    font-family: 'Russo One';
+    background: linear-gradient(135deg, #D4F1F4 0%, #B8E0F0 50%, #C5D5F0 100%);
+    min-height: 100vh;
+    padding: 0;
+    margin: 0;
 }
 
-header {
+.full-width-header {
+    width: 100%;
+    background: #FEF7DF;
+    padding: 20px 0;
+    margin-bottom: 30px;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-bottom: 40px;
-    padding: 20px 0;
+}
+
+.header-title {
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: center;
+    font-family: 'Russo One';
+    font-size: 28px;
+    color: #000000;
+    padding: 0 20px;
+}
+
+.tools-panel {
+    max-width: 1200px;
+    margin: 0 auto 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    padding: 0 20px;
     position: relative;
 }
 
-.title-container {
-    background-color: #FFFF;
-    padding: 15px 30px;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
+.product-section {
+    display: grid;
+    grid-template-columns: repeat(3, 300px);
+    flex-wrap: wrap;
+    gap: 30px;
     justify-content: center;
-    width: 750px;
-    height: 70px;
+    margin: 0 auto 40px;
+    padding: 0 20px;
 }
 
 .product-card {
@@ -203,13 +227,6 @@ header {
     background-color: #0017D4FF;
 }
 
-.calculator-title {
-    font-size: 28px;
-    color: #F59E0B;
-    font-family: 'Russo One';
-    white-space: nowrap;
-}
-
 .wibes-data-item {
     display: flex;
     flex-direction: column;
@@ -236,12 +253,12 @@ header {
 .wibes-video-wrapper {
     position: relative;
     width: 100%;
-    /* aspect-ratio: 9/16; */
+    aspect-ratio: 9/16;
     background-color: #000;
     border-radius: 10px;
     overflow: hidden;
     max-width: 500px;
-    height: 700px;
+    height: auto;
     margin: 0 auto;
 }
 
