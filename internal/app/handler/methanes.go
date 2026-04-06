@@ -2,6 +2,7 @@ package handler
 
 import (
 	"fmt"
+	"lab3/internal/app/pkg/auth"
 	"mime/multipart"
 	"net/http"
 	"strconv"
@@ -47,12 +48,33 @@ func (h *Handler) GetMethaneByIdAPI(ctx *gin.Context) {
 	}
 
 	// Т.к. мы получаем подробную информацию об акции, используем расширенный сериализатор
-	fullMethane := ds.FullMethaneSerializer{Methane: methane}
-	fullMethane.Admin = methane.Admin
+	fullMethane := ds.FullMethaneSerializer{
+		Methane:   methane,
+		AdminName: methane.Admin.Login,
+	}
+	if methane.ModeratorID != nil {
+		fullMethane.ModeratorName = methane.Moderator.Login
+	}
 
 	ctx.JSON(http.StatusOK, gin.H{
 		"status": "success",
 		"data":   fullMethane,
+	})
+}
+
+func (h *Handler) CreateDraftMethaneAPI(ctx *gin.Context) {
+	userID := auth.CurrentUserID()
+
+	methane, err := h.Repository.CreateDraftMethane(userID)
+	if err != nil {
+		h.errorHandler(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	ctx.JSON(http.StatusCreated, gin.H{
+		"status":  "success",
+		"data":    methane,
+		"message": "черновик создан",
 	})
 }
 
@@ -101,21 +123,14 @@ func (h *Handler) AddMethaneAPI(ctx *gin.Context) {
 		AdminID: 1, // временный хардкод
 	}
 
-	if ctx.Request.FormValue("temperature") != "" {
-		methane.Temperature, err = strconv.ParseUint(ctx.Request.FormValue("temperature"), 10, 64)
+	if tempStr := ctx.Request.FormValue("temperature"); tempStr != "" {
+		temp, err := strconv.ParseFloat(tempStr, 64)
 		if err != nil {
 			h.errorHandler(ctx, http.StatusBadRequest, err)
 			return
 		}
+		methane.Temperature = temp
 	}
-
-	//if ctx.Request.FormValue("sale_price") != "" {
-	//	methane.SalePrice, err = strconv.ParseUint(ctx.Request.FormValue("sale_price"), 10, 64)
-	//	if err != nil {
-	//		h.errorHandler(ctx, http.StatusBadRequest, err)
-	//		return
-	//	}
-	//}
 
 	err = h.Repository.AddMethane(&methane)
 
@@ -150,12 +165,82 @@ func (h *Handler) AddMethaneAPI(ctx *gin.Context) {
 	}
 }
 
-func (h *Handler) ModifyMethaneAPI(ctx *gin.Context) {
+func (h *Handler) FormMethaneAPI(ctx *gin.Context) {
+	id, _ := strconv.Atoi(ctx.Param("id"))
+
+	methane, err := h.Repository.GetMethane(id)
+	if err != nil {
+		h.errorHandler(ctx, http.StatusNotFound, err)
+		return
+	}
+
+	// Проверка прав
+	if methane.AdminID != auth.CurrentUserID() {
+		h.errorHandler(ctx, http.StatusForbidden, fmt.Errorf("нет прав"))
+		return
+	}
+
+	if methane.Status != "черновик" {
+		h.errorHandler(ctx, http.StatusBadRequest, fmt.Errorf("можно формировать только черновик"))
+		return
+	}
+
+	// Проверка обязательных полей
+	if methane.Name == "" {
+		h.errorHandler(ctx, http.StatusBadRequest, fmt.Errorf("название обязательно"))
+		return
+	}
+
+	// Подсчёт реагентов для вычисляемого поля
+	count, _ := h.Repository.CountReagentsInMethane(uint(id))
+	if count == 0 {
+		h.errorHandler(ctx, http.StatusBadRequest, fmt.Errorf("добавьте хотя бы один реагент"))
+		return
+	}
+
+	// Вычисление выхода метана (пример формулы из лабы 2)
+	var totalMass float64
+	reagents, _ := h.Repository.GetMethaneReagents(uint(id))
+	for _, r := range reagents {
+		totalMass += r.Quantity
+	}
+
+	// Формула выхода метана (упрощённая)
+	methaneYield := (totalMass * 0.15) / (1 + methane.Temperature/1000)
+
+	updates := map[string]interface{}{
+		"methane_yield": methaneYield,
+	}
+
+	if err := h.Repository.FormMethane(uint(id), updates); err != nil {
+		h.errorHandler(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"status":  "success",
+		"message": "заявка сформирована",
+	})
+}
+
+func (h *Handler) UpdateMethaneAPI(ctx *gin.Context) {
 	strId := ctx.Param("id")
 	id, err := strconv.Atoi(strId)
 
+	methane, err := h.Repository.GetMethane(id)
 	if err != nil {
-		h.errorHandler(ctx, http.StatusInternalServerError, err)
+		h.errorHandler(ctx, http.StatusNotFound, err)
+		return
+	}
+
+	// только admin может редактировать
+	if methane.AdminID != auth.CurrentUserID() {
+		h.errorHandler(ctx, http.StatusForbidden, fmt.Errorf("нет прав"))
+		return
+	}
+
+	if methane.Status != "черновик" {
+		h.errorHandler(ctx, http.StatusBadRequest, fmt.Errorf("можно редактировать только черновик"))
 		return
 	}
 
@@ -164,40 +249,24 @@ func (h *Handler) ModifyMethaneAPI(ctx *gin.Context) {
 		return
 	}
 
-	// Загружаем старые данные, а поля на новые значения будем менять по ходу
-	// Потенциально неоптимально, но так мы точно не опустошим лишние поля
-	methane, err := h.Repository.GetMethane(int(id))
-	if err != nil {
-		h.errorHandler(ctx, http.StatusInternalServerError, err)
-		return
+	// Собираем обновления
+	updates := map[string]interface{}{}
+
+	if name := ctx.Request.FormValue("name"); name != "" {
+		updates["name"] = name
 	}
 
-	if ctx.Request.PostForm.Has("name") {
-		methane.Name = ctx.Request.FormValue("name")
-	}
-	if ctx.Request.PostForm.Has("status") {
-		methane.Status = ctx.Request.FormValue("status")
-	}
-	if ctx.Request.PostForm.Has("inn") {
-		methane.MethaneYield = ctx.Request.FormValue("methane_yield")
-	}
-
-	if ctx.Request.FormValue("temperature") != "" {
-		methane.Temperature, err = strconv.ParseUint(ctx.Request.FormValue("temperature"), 10, 64)
+	// Парсим temperature как float64
+	if tempStr := ctx.Request.FormValue("temperature"); tempStr != "" {
+		temp, err := strconv.ParseFloat(tempStr, 64)
 		if err != nil {
-			h.errorHandler(ctx, http.StatusBadRequest, err)
+			h.errorHandler(ctx, http.StatusBadRequest, fmt.Errorf("некорректная температура"))
 			return
 		}
+		updates["temperature"] = temp
 	}
 
-	//if ctx.Request.FormValue("sale_price") != "" {
-	//	methane.SalePrice, err = strconv.ParseUint(ctx.Request.FormValue("sale_price"), 10, 64)
-	//	if err != nil {
-	//		h.errorHandler(ctx, http.StatusBadRequest, err)
-	//		return
-	//	}
-	//}
-
+	// Обработка файла
 	header, err := ctx.FormFile("pic")
 
 	var fileFound bool
@@ -244,6 +313,45 @@ func (h *Handler) ModifyMethaneAPI(ctx *gin.Context) {
 		"status":  "success",
 		"data":    updatedMethane,
 		"message": "запись успешно обновлена",
+	})
+}
+
+func (h *Handler) CompleteMethaneAPI(ctx *gin.Context) {
+	id, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		h.errorHandler(ctx, http.StatusBadRequest, err)
+		return
+	}
+
+	// Получаем заявку
+	methane, err := h.Repository.GetMethane(id)
+	if err != nil {
+		h.errorHandler(ctx, http.StatusNotFound, err)
+		return
+	}
+
+	// Проверяем, что заявка в статусе "сформирована"
+	if methane.Status != "сформирована" {
+		h.errorHandler(ctx, http.StatusBadRequest, fmt.Errorf("можно завершить только сформированную заявку"))
+		return
+	}
+
+	// Проверяем права модератора (в 3 лабе - заглушка, но можно проверить)
+	if !auth.CurrentUserIsModerator() {
+		h.errorHandler(ctx, http.StatusForbidden, fmt.Errorf("только модератор может завершить заявку"))
+		return
+	}
+
+	// Завершаем заявку
+	moderatorID := auth.CurrentUserID()
+	if err := h.Repository.CompleteMethane(uint(id), moderatorID, "завершена"); err != nil {
+		h.errorHandler(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"status":  "success",
+		"message": "заявка завершена",
 	})
 }
 
@@ -319,4 +427,29 @@ func validateFileUpload(header *multipart.FileHeader) (int, error) {
 	}
 
 	return 0, nil
+}
+
+func (h *Handler) GetCartAPI(ctx *gin.Context) {
+	userID := auth.CurrentUserID()
+
+	// Ищем черновик пользователя
+	methane, err := h.Repository.GetDraftMethane(userID)
+	if err != nil {
+		// Создаём новый черновик если нет
+		methane, err = h.Repository.CreateDraftMethane(userID)
+		if err != nil {
+			h.errorHandler(ctx, http.StatusInternalServerError, err)
+			return
+		}
+	}
+
+	count, _ := h.Repository.CountReagentsInMethane(methane.ID)
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"status": "success",
+		"data": gin.H{
+			"methane_id": methane.ID,
+			"count":      count,
+		},
+	})
 }

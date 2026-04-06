@@ -2,13 +2,13 @@ package main
 
 import (
 	"fmt"
+	"lab3/internal/app/pkg"
 	"os"
 
 	"lab3/internal/app/config"
 	"lab3/internal/app/dsn"
 	"lab3/internal/app/handler"
 	"lab3/internal/app/repository"
-	"lab3/internal/pkg"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"

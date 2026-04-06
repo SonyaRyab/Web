@@ -12,11 +12,16 @@ func (r *Repository) GetUserMethanes(id int) (*ds.UserMethanes, error) {
 		return nil, err
 	}
 
-	err = r.db.Find(&userMethanes.Methanes).Error
+	err = r.db.Where("admin_id = ? AND status != ?", id, "удалена").
+		Find(&userMethanes.Methanes).Error
 
 	if err != nil {
 		return nil, err
 	}
 
 	return &userMethanes, nil
+}
+
+func (r *Repository) CreateUser(user *ds.User) error {
+	return r.db.Create(user).Error
 }

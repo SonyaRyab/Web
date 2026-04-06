@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/minio/minio-go/v7"
 
@@ -37,7 +38,7 @@ func (r *Repository) AddMethane(methane *ds.Methane) error {
 
 func (r *Repository) GetMethane(id int) (ds.Methane, error) {
 	methane := ds.Methane{}
-	err := r.db.Preload("Creator").Where("id = ?", id).First(&methane).Error
+	err := r.db.Preload("Admin").Where("id = ?", id).First(&methane).Error
 	if err != nil {
 		return ds.Methane{}, err
 	}
@@ -142,4 +143,83 @@ func (r *Repository) AddOrReplaceMethaneImage(methaneID uint, header *multipart.
 	}
 
 	return nil
+}
+
+// GetMethanesWithFilter получает заявки с фильтрацией по дате и статусу
+func (r *Repository) GetMethanesWithFilter(status string, dateFrom, dateTo string) ([]ds.MethaneListSerializer, error) {
+	var results []ds.MethaneListSerializer
+
+	query := r.db.Model(&ds.Methane{}).
+		Select("methanes.*, COUNT(methane_reagents.id) as reagent_count").
+		Joins("LEFT JOIN methane_reagents ON methanes.id = methane_reagents.methane_id").
+		Where("methanes.status != ?", "удалена").
+		Group("methanes.id")
+
+	if status != "" {
+		query = query.Where("methanes.status = ?", status)
+	}
+	if dateFrom != "" {
+		query = query.Where("methanes.date_form >= ?", dateFrom)
+	}
+	if dateTo != "" {
+		query = query.Where("methanes.date_form <= ?", dateTo)
+	}
+
+	err := query.Find(&results).Error
+	return results, err
+}
+
+// GetDraftMethane получает черновик текущего пользователя
+func (r *Repository) GetDraftMethane(userID uint) (*ds.Methane, error) {
+	var methane ds.Methane
+	err := r.db.Where("admin_id = ? AND status = ?", userID, "черновик").First(&methane).Error
+	if err != nil {
+		return nil, err
+	}
+	return &methane, nil
+}
+
+// CreateDraftMethane создаёт пустую заявку-черновик
+func (r *Repository) CreateDraftMethane(userID uint) (*ds.Methane, error) {
+	methane := ds.Methane{
+		Name:       "Новый эксперимент",
+		Status:     "черновик",
+		DateCreate: time.Now(),
+		AdminID:    userID,
+	}
+	err := r.db.Create(&methane).Error
+	return &methane, err
+}
+
+// FormMethane формирует заявку (меняет статус, вычисляет поля)
+func (r *Repository) FormMethane(id uint, updates map[string]interface{}) error {
+	updates["status"] = "сформирована"
+	updates["date_form"] = time.Now()
+	return r.db.Model(&ds.Methane{}).Where("id = ?", id).Updates(updates).Error
+}
+
+// CompleteMethane завершает/отклоняет заявку
+func (r *Repository) CompleteMethane(id uint, moderatorID uint, status string) error {
+	if status != "завершена" && status != "отклонена" {
+		return fmt.Errorf("некорректный статус завершения")
+	}
+
+	return r.db.Model(&ds.Methane{}).Where("id = ?", id).Updates(map[string]interface{}{
+		"status":       status,
+		"moderator_id": moderatorID,
+		"date_finish":  time.Now(),
+	}).Error
+}
+
+// SoftDeleteMethane мягкое удаление (установка статуса)
+func (r *Repository) SoftDeleteMethane(id uint) error {
+	return r.db.Model(&ds.Methane{}).Where("id = ?", id).Update("status", "удалена").Error
+}
+
+// GetMethaneWithReagents получает заявку со всеми реагентами
+func (r *Repository) GetMethaneWithReagents(id uint) (ds.Methane, error) {
+	var methane ds.Methane
+	err := r.db.Preload("Admin").Preload("Moderator").Preload("Reagents").Preload("Reagents.Reagent").
+		Where("id = ?", id).First(&methane).Error
+	return methane, err
 }
