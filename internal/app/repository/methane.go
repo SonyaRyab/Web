@@ -45,14 +45,34 @@ func (r *Repository) GetMethane(id int) (ds.Methane, error) {
 	return methane, nil
 }
 
-func (r *Repository) DeleteMethane(methaneID uint) error {
-	// Обратите внимание: жёсткое удаление, не логическое
-	err := r.db.Delete(&ds.Methane{}, methaneID).Error
-	if err != nil {
-		return fmt.Errorf("ошибка при удалении команды с id %d: %w", methaneID, err)
+// func (r *Repository) DeleteMethane(methaneID uint) error {
+// 	err := r.db.Delete(&ds.Methane{}, methaneID).Error
+// 	if err != nil {
+// 		return fmt.Errorf("ошибка при удалении команды с id %d: %w", methaneID, err)
+// 	}
+
+// 	return nil
+// }
+
+func (r *Repository) DeleteMethane(methaneID uint) (*ds.Methane, error) {
+	var methane ds.Methane
+	if err := r.db.First(&methane, methaneID).Error; err != nil {
+		return nil, fmt.Errorf("заявка не найдена: %w", err)
 	}
 
-	return nil
+	now := time.Now()
+	updates := map[string]interface{}{
+		"status":      "удалён",
+		"date_finish": now,
+	}
+
+	if err := r.db.Model(&methane).Updates(updates).Error; err != nil {
+		return nil, fmt.Errorf("ошибка при удалении заявки: %w", err)
+	}
+
+	methane.Status = "удалён"
+	methane.DateFinish = &now
+	return &methane, nil
 }
 
 func (r *Repository) ModifyMethane(id uint, methane *ds.Methane) error {
@@ -182,7 +202,7 @@ func (r *Repository) GetDraftMethane(userID uint) (*ds.Methane, error) {
 // CreateDraftMethane создаёт пустую заявку-черновик
 func (r *Repository) CreateDraftMethane(userID uint) (*ds.Methane, error) {
 	methane := ds.Methane{
-		Name:       "Новый эксперимент",
+		// Name:       "Новый эксперимент",
 		Status:     "черновик",
 		DateCreate: time.Now(),
 		AdminID:    userID,

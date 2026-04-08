@@ -22,7 +22,7 @@ func (h *Handler) GetReagentsAPI(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"status": "success",
+		// "status": "success",
 		"data":   reagents,
 	})
 }
@@ -41,7 +41,7 @@ func (h *Handler) GetReagentByIDAPI(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"status": "success",
+		// "status": "success",
 		"data":   reagent,
 	})
 }
@@ -99,7 +99,7 @@ func (h *Handler) AddReagentAPI(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusCreated, gin.H{
-		"status":  "success",
+		// "status":  "success",
 		"data":    reagent,
 		"message": "реагент добавлен",
 	})
@@ -262,7 +262,7 @@ func (h *Handler) UpdateReagentAPI(ctx *gin.Context) {
 	updatedReagent, _ := h.Repository.GetReagentByID(uint(id))
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"status":  "success",
+		// "status":  "success",
 		"data":    updatedReagent,
 		"message": "реагент обновлён",
 	})

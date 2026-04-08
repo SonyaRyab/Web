@@ -28,7 +28,7 @@ func (h *Handler) GetMethanesAPI(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"status": "success",
+		// "status": "success",
 		"data":   methanes,
 	})
 }
@@ -57,7 +57,7 @@ func (h *Handler) GetMethaneByIdAPI(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"status": "success",
+		// "status": "success",
 		"data":   fullMethane,
 	})
 }
@@ -72,7 +72,7 @@ func (h *Handler) CreateDraftMethaneAPI(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusCreated, gin.H{
-		"status":  "success",
+		// "status":  "success",
 		"data":    methane,
 		"message": "черновик создан",
 	})
@@ -118,8 +118,7 @@ func (h *Handler) AddMethaneAPI(ctx *gin.Context) {
 
 	methane := ds.Methane{
 		Name:   ctx.Request.FormValue("name"),
-		Status: ctx.Request.FormValue("status"),
-		//INN:     ctx.Request.FormValue("inn"),
+		// Status: ctx.Request.FormValue("status"),
 		AdminID: 1, // временный хардкод
 	}
 
@@ -152,13 +151,13 @@ func (h *Handler) AddMethaneAPI(ctx *gin.Context) {
 		}
 
 		ctx.JSON(http.StatusCreated, gin.H{
-			"status":  "success",
+			// "status":  "success",
 			"data":    updatedMethane,
 			"message": "метан успешно добавлен",
 		})
 	} else {
 		ctx.JSON(http.StatusCreated, gin.H{
-			"status":  "success",
+			// "status":  "success",
 			"data":    methane,
 			"message": "метан успешно добавлен",
 		})
@@ -218,7 +217,7 @@ func (h *Handler) FormMethaneAPI(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"status":  "success",
+		// "status":  "success",
 		"message": "заявка сформирована",
 	})
 }
@@ -310,7 +309,7 @@ func (h *Handler) UpdateMethaneAPI(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"status":  "success",
+		// "status":  "success",
 		"data":    updatedMethane,
 		"message": "запись успешно обновлена",
 	})
@@ -350,28 +349,61 @@ func (h *Handler) CompleteMethaneAPI(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"status":  "success",
+		// "status":  "success",
 		"message": "заявка завершена",
 	})
 }
+
+// func (h *Handler) DeleteMethaneAPI(ctx *gin.Context) {
+// 	strId := ctx.Param("id")
+// 	id, err := strconv.Atoi(strId)
+// 	if err != nil {
+// 		h.errorHandler(ctx, http.StatusInternalServerError, err)
+// 		return
+// 	}
+
+// 	err = h.Repository.DeleteMethane(uint(id))
+// 	if err != nil {
+// 		h.errorHandler(ctx, http.StatusInternalServerError, err)
+// 		return
+// 	}
+
+// 	ctx.JSON(http.StatusOK, gin.H{
+// 		"date_finish":  date_finish,
+// 		"message": "заявка успешно удалена",
+// 	})
+// }
 
 func (h *Handler) DeleteMethaneAPI(ctx *gin.Context) {
 	strId := ctx.Param("id")
 	id, err := strconv.Atoi(strId)
 	if err != nil {
-		h.errorHandler(ctx, http.StatusInternalServerError, err)
+		h.errorHandler(ctx, http.StatusBadRequest, err)
 		return
 	}
 
-	err = h.Repository.DeleteMethane(uint(id))
+	// Проверка прав (опционально)
+	methane, err := h.Repository.GetMethane(id)
+	if err != nil {
+		h.errorHandler(ctx, http.StatusNotFound, err)
+		return
+	}
+	
+	if methane.AdminID != auth.CurrentUserID() {
+		h.errorHandler(ctx, http.StatusForbidden, fmt.Errorf("нет прав"))
+		return
+	}
+
+	// Мягкое удаление
+	deletedMethane, err := h.Repository.DeleteMethane(uint(id))
 	if err != nil {
 		h.errorHandler(ctx, http.StatusInternalServerError, err)
 		return
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"status":  "success",
-		"message": "команда успешно удалена",
+		"date_finish": deletedMethane.DateFinish,
+		"message":     "заявка успешно удалена",
 	})
 }
 
@@ -446,7 +478,6 @@ func (h *Handler) GetCartAPI(ctx *gin.Context) {
 	count, _ := h.Repository.CountReagentsInMethane(methane.ID)
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"status": "success",
 		"data": gin.H{
 			"methane_id": methane.ID,
 			"count":      count,

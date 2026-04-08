@@ -41,7 +41,7 @@ func (h *Handler) AddReagentToMethaneAPI(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusCreated, gin.H{
-		"status":  "success",
+		// "status":  "success",
 		"message": "реагент добавлен в заявку",
 	})
 }
