@@ -213,7 +213,7 @@ func (r *Repository) getVideoURL(filename string) string {
 
 func (r *Repository) createTestApplication() {
 	r.lastAppID++
-	appID := fmt.Sprintf("EXP-%d", r.lastAppID)
+	appID := fmt.Sprintf("%d", r.lastAppID)
 
 	app := Experiment{
 		ID:          appID,
