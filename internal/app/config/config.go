@@ -15,6 +15,13 @@ type Config struct {
 	ServiceHost string
 	ServicePort int
 	Redis RedisConfig
+	JWT JWTConfig
+}
+
+type JWTConfig struct {
+	Token         string       
+	ExpiresIn     time.Duration 
+	SigningMethod string     
 }
 
 type RedisConfig struct {
@@ -31,6 +38,8 @@ const (
    envRedisPort = "REDIS_PORT"
    envRedisUser = "REDIS_USER"
    envRedisPass = "REDIS_PASSWORD"
+   envJWTToken = "JWT_TOKEN"
+   envJWTExpires = "JWT_EXPIRES_HOURS"
 )
 
 func NewConfig() (*Config, error) {
@@ -63,6 +72,13 @@ func NewConfig() (*Config, error) {
 	cfg.Redis.User = os.Getenv(envRedisUser)
 	cfg.Redis.Password = os.Getenv(envRedisPass)
 
+	cfg.JWT.Token = os.Getenv(envJWTToken)
+	if cfg.JWT.Token == "" {
+		cfg.JWT.Token = "default_secret_change_me" // дефолт для разработки
+	}
+	
+	expiresHours := 24
+
 	if os.Getenv(envRedisPort) != "" {
 		cfg.Redis.Port, err = strconv.Atoi(os.Getenv(envRedisPort))
 		if err != nil {
@@ -70,13 +86,19 @@ func NewConfig() (*Config, error) {
 		}
 	}
 
+	if os.Getenv(envJWTExpires) != "" {
+		expiresHours, _ = strconv.Atoi(os.Getenv(envJWTExpires))
+	}
+	cfg.JWT.ExpiresIn = time.Duration(expiresHours) * time.Hour
+	cfg.JWT.SigningMethod = "HS256"
+
 	if cfg.Redis.Host == "" {
 		cfg.Redis.Host = "127.0.0.1"
 	}
 	if cfg.Redis.Port == 0 {
 		cfg.Redis.Port = 6379
 	}
-
+	
 	log.Info("config parsed")
 
 	return cfg, nil

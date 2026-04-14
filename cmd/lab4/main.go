@@ -7,23 +7,21 @@ import (
 	"os"
 )
 
-// @title BITOP
+// @title Lab4 API
 // @version 1.0
-// @description Bmstu Open IT Platform
+// @description API with JWT Auth
 
 // @contact.name API Support
-// @contact.url https://vk.com/bmstu_schedule
-// @contact.email bitop@spatecon.ru
 
-// @license.name AS IS (NO WARRANTY)
+// @license.name AS IS
 
 // @host localhost:8080
-// @schemes http
 // @BasePath /
 
-// @securityDefinitions.apikey SessionCookieAuth
-// @in cookie
-// @name session_id
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description Type "Bearer" followed by a space and JWT token. Example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 
 func main() {
 	log.Println("Initializing server")

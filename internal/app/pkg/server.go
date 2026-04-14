@@ -41,7 +41,7 @@ func (a *Application) StartServer() {
 	{
 		auth.POST("/login", a.Login)
 		auth.POST("/register", a.Register)
-		auth.POST("/logout", a.WithSessionAuth(), a.Logout)
+		auth.POST("/logout", a.WithJWTAuth(), a.Logout)
 	}
 
 	api := r.Group("/api")
@@ -50,7 +50,7 @@ func (a *Application) StartServer() {
 	}
 
 	user := r.Group("/api")
-	user.Use(a.WithSessionAuth())
+	user.Use(a.WithJWTAuth())
 	{
 		user.GET("/methanes", a.GetMethanes)
 		user.POST("/methanes/draft", a.CreateDraftMethane)
@@ -59,7 +59,7 @@ func (a *Application) StartServer() {
 	}
 
 	researcher := r.Group("/api")
-	researcher.Use(a.WithSessionAuth())
+	researcher.Use(a.WithJWTAuth())
 	{
 		researcher.PUT("/methanes/:id/complete", a.RequireModerator(), a.CompleteMethane)
 	}

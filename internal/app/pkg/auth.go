@@ -2,19 +2,17 @@ package app
 
 import (
 	"encoding/json"
-	"errors"
-	"strings"
 	"net/http"
+	"strings"
 	"time"
 
 	"lab4/internal/app/ds"
-	red "lab4/internal/app/redis"
 	"lab4/internal/app/role"
 
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
-	"gorm.io/gorm"
 )
 
 type loginReq struct {
@@ -22,11 +20,16 @@ type loginReq struct {
 	Password string `json:"password"`
 }
 
+type loginResp struct {
+	ExpiresIn   time.Duration `json:"expires_in"`
+	AccessToken string        `json:"access_token"`
+	TokenType   string        `json:"token_type"`
+}
+
 type registerReq struct {
-	Login string `json:"login"`
-	Username  string `json:"name"`
-	Pass  string `json:"pass"`
-	Role     string `json:"role"`
+	Login    string `json:"login"`
+	Username string `json:"name"`
+	Pass     string `json:"pass"`
 }
 
 type registerResp struct {
@@ -44,64 +47,44 @@ func checkPassword(hash string, password string) bool {
 
 // Register godoc
 // @Summary Регистрация пользователя
-// @Description Создаёт нового пользователя-исследователя
+// @Description Создаёт нового пользователя
 // @Tags auth
 // @Accept json
 // @Produce json
 // @Param input body registerReq true "Данные регистрации"
 // @Success 200 {object} registerResp
 // @Failure 400 {object} map[string]interface{}
-// @Failure 409 {object} map[string]interface{}
-// @Failure 500 {object} map[string]interface{}
 // @Router /auth/register [post]
 func (a *Application) Register(gCtx *gin.Context) {
 	req := &registerReq{}
-
 	if err := json.NewDecoder(gCtx.Request.Body).Decode(req); err != nil {
 		gCtx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "invalid json"})
 		return
 	}
 
 	if req.Login == "" || req.Username == "" || req.Pass == "" {
-		gCtx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "login, username, pass are required"})
+		gCtx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "all fields required"})
 		return
 	}
 
-	req.Login = strings.TrimSpace(req.Login)
-	req.Username = strings.TrimSpace(req.Username)
-
-	if req.Login == "" || req.Username == "" || req.Pass == "" {
-		gCtx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "login, name, pass are required"})
-		return
-	}
-
+	// Проверка существования
 	_, err := a.repo.GetUserByLogin(req.Login)
 	if err == nil {
 		gCtx.AbortWithStatusJSON(http.StatusConflict, gin.H{"error": "login already exists"})
 		return
 	}
-	if !errors.Is(err, gorm.ErrRecordNotFound) {
-		gCtx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "cannot check login uniqueness"})
-		return
-	}
 
-	passHash, err := hashPassword(req.Pass)
-	if err != nil {
-		gCtx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "cannot hash password"})
-		return
-	}
-
+	passHash, _ := hashPassword(req.Pass)
+	
 	err = a.repo.Register(&ds.User{
 		UUID:     uuid.New(),
 		Login:    req.Login,
-		Username:     req.Username,
-		Email:     req.Login + "@test.ru",
-    	Password:  req.Pass,           
-		Role:     role.Researcher,
+		Username: req.Username,
+		Email:    req.Login + "@test.ru",
+		Role:     role.Researcher, // По умолчанию
 		PassHash: passHash,
-		IsProfessor: false,
 	})
-
+	
 	if err != nil {
 		gCtx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -111,29 +94,19 @@ func (a *Application) Register(gCtx *gin.Context) {
 }
 
 // Login godoc
-// @Summary Вход пользователя
-// @Description Создаёт серверную сессию в Redis и устанавливает cookie session_id
+// @Summary Вход пользователя (JWT)
+// @Description Аутентификация через JWT, возвращает access_token
 // @Tags auth
 // @Accept json
 // @Produce json
 // @Param input body loginReq true "Данные входа"
-// @Success 200 {object} map[string]interface{}
-// @Failure 400 {object} map[string]interface{}
+// @Success 200 {object} loginResp
 // @Failure 401 {object} map[string]interface{}
-// @Failure 500 {object} map[string]interface{}
 // @Router /auth/login [post]
 func (a *Application) Login(gCtx *gin.Context) {
 	req := &loginReq{}
-
 	if err := json.NewDecoder(gCtx.Request.Body).Decode(req); err != nil {
 		gCtx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "invalid json"})
-		return
-	}
-
-	req.Login = strings.TrimSpace(req.Login)
-
-	if req.Login == "" || req.Password == "" {
-		gCtx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "login and password are required"})
 		return
 	}
 
@@ -148,67 +121,72 @@ func (a *Application) Login(gCtx *gin.Context) {
 		return
 	}
 
-	sessionID := uuid.NewString()
-	ttl := 24 * time.Hour
+	token := jwt.NewWithClaims(jwt.GetSigningMethod(a.config.JWT.SigningMethod), &ds.JWTClaims{
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(a.config.JWT.ExpiresIn).Unix(),
+			IssuedAt:  time.Now().Unix(),
+			Issuer:    "lab4-backend",
+		},
+		UserUUID: user.UUID,
+		Role:     user.Role,
+	})
 
-	sess := &red.Session{
-		UserID: user.ID,
-		Login:  user.Login,
-		Role:   user.Role,
-		ExpAt:  time.Now().Add(ttl),
-	}
-
-	if err := a.redis.SaveSession(gCtx.Request.Context(), sessionID, sess, ttl); err != nil {
-		gCtx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "cannot save session"})
+	tokenString, err := token.SignedString([]byte(a.config.JWT.Token))
+	if err != nil {
+		gCtx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "cannot create token"})
 		return
 	}
 
-	http.SetCookie(gCtx.Writer, &http.Cookie{
-		Name:     "session_id",
-		Value:    sessionID,
-		Path:     "/",
-		HttpOnly: true,
-		SameSite: http.SameSiteLaxMode,
-		MaxAge:   int(ttl.Seconds()),
-	})
-
-	gCtx.JSON(http.StatusOK, gin.H{
-		"ok":    true,
-		"login": user.Login,
-		"role":  user.Role,
+	gCtx.JSON(http.StatusOK, loginResp{
+		ExpiresIn:   a.config.JWT.ExpiresIn,
+		AccessToken: tokenString,
+		TokenType:   "Bearer",
 	})
 }
 
 // Logout godoc
-// @Summary Выход пользователя
-// @Description Удаляет серверную сессию из Redis и очищает cookie
+// @Summary Выход (Blacklist JWT)
+// @Description Добавляет текущий JWT в blacklist Redis
 // @Tags auth
 // @Produce json
+// @Security BearerAuth
 // @Success 200 {object} map[string]interface{}
 // @Failure 401 {object} map[string]interface{}
-// @Failure 500 {object} map[string]interface{}
-// @Security SessionCookieAuth
 // @Router /auth/logout [post]
-
 func (a *Application) Logout(gCtx *gin.Context) {
-	sessionID, err := gCtx.Cookie("session_id")
-	if err != nil {
-		gCtx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "no session"})
+	jwtStr := gCtx.GetHeader("Authorization")
+	const prefix = "Bearer "
+	
+	if !strings.HasPrefix(jwtStr, prefix) {
+		gCtx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "invalid auth header"})
 		return
 	}
+	
+	jwtStr = strings.TrimPrefix(jwtStr, prefix)
 
-	if err := a.redis.DeleteSession(gCtx.Request.Context(), sessionID); err != nil {
-		gCtx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "cannot delete session"})
-		return
-	}
-
-	http.SetCookie(gCtx.Writer, &http.Cookie{
-		Name:     "session_id",
-		Value:    "",
-		Path:     "/",
-		HttpOnly: true,
-		MaxAge:   -1,
+	claims := &ds.JWTClaims{}
+	_, err := jwt.ParseWithClaims(jwtStr, claims, func(token *jwt.Token) (interface{}, error) {
+		return []byte(a.config.JWT.Token), nil
 	})
+	
+	if err != nil {
+		gCtx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid token"})
+		return
+	}
+
+	expiration := time.Unix(claims.ExpiresAt, 0)
+	ttl := time.Until(expiration)
+	if ttl <= 0 {
+		gCtx.JSON(http.StatusOK, gin.H{"ok": true})
+		return
+	}
+
+	// Добавляем в blacklist
+	err = a.redis.WriteJWTToBlacklist(gCtx.Request.Context(), jwtStr, ttl)
+	if err != nil {
+		gCtx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "cannot blacklist token"})
+		return
+	}
 
 	gCtx.JSON(http.StatusOK, gin.H{"ok": true})
 }
