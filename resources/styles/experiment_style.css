@@ -132,9 +132,10 @@ header {
 }
 
 .application-info {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    display: flex;
+    flex-direction: column;
     gap: 15px;
+    /* grid-template-columns: repeat(2, 1fr); */
 }
 
 .info-row {
