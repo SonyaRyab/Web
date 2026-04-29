@@ -9,7 +9,7 @@ import (
 
 type Repository struct {
 	reagents     []Reagent
-	applications map[string]Experiment
+	applications map[string]Methane
 	MinioClient  *MinioClient // Добавляем Minio клиент
 	lastAppID    int          // для генерации ID
 }
@@ -29,7 +29,7 @@ func NewRepository() (*Repository, error) {
 	}
 
 	repo := &Repository{
-		applications: make(map[string]Experiment),
+		applications: make(map[string]Methane),
 		MinioClient:  minioClient,
 		lastAppID:    0,
 	}
@@ -63,20 +63,20 @@ type Reagent struct {
 	Coefficient  float64
 }
 
-type Experiment struct {
+type Methane struct {
 	ID          string
 	CreatedAt   string
 	Customer    string
 	Status      string
-	Items       []ExperimentItem
+	Items       []MethaneItem
 	TotalAmount int
 	Result      string
 	Temperature int
 	Description string
 }
 
-// ExperimentItem - услуга в заявке
-type ExperimentItem struct {
+// MethaneItem - услуга в заявке
+type MethaneItem struct {
 	ID          int
 	ReagentID   int
 	Title       string
@@ -218,12 +218,12 @@ func (r *Repository) createTestApplication() {
 	r.lastAppID++
 	appID := fmt.Sprintf("%d", r.lastAppID)
 
-	app := Experiment{
+	app := Methane{
 		ID:          appID,
 		CreatedAt:   time.Now().Format("02.01.2006 15:04"),
 		Customer:    "Иванов И.И.",
 		Status:      "В обработке",
-		Items:       []ExperimentItem{},
+		Items:       []MethaneItem{},
 		TotalAmount: 0,
 		Temperature: 100,
 		Description: "Эксперимент по синтезу метана по реакции Сабатье",
@@ -254,7 +254,7 @@ func (r *Repository) AddToExperiment(appID string, reagentID int) error {
 		}
 	}
 
-	newItem := ExperimentItem{
+	newItem := MethaneItem{
 		ID:        len(app.Items) + 1,
 		ReagentID: reagent.ID,
 		Title:     reagent.Title,
@@ -272,17 +272,17 @@ func (r *Repository) AddToExperiment(appID string, reagentID int) error {
 	return nil
 }
 
-func (r *Repository) GetExperiment(appID string) (Experiment, error) {
+func (r *Repository) GetExperiment(appID string) (Methane, error) {
 	app, exists := r.applications[appID]
 	if !exists {
-		return Experiment{}, fmt.Errorf("заявка не найдена")
+		return Methane{}, fmt.Errorf("заявка не найдена")
 	}
 	return app, nil
 }
 
 // Получение списка всех заявок
-func (r *Repository) GetExperiments() ([]Experiment, error) {
-	apps := make([]Experiment, 0, len(r.applications))
+func (r *Repository) GetExperiments() ([]Methane, error) {
+	apps := make([]Methane, 0, len(r.applications))
 	for _, app := range r.applications {
 		apps = append(apps, app)
 	}
@@ -294,12 +294,12 @@ func (r *Repository) CreateExperiment(customer string) (string, error) {
 	r.lastAppID++
 	appID := fmt.Sprintf("APP-%d", r.lastAppID)
 
-	app := Experiment{
+	app := Methane{
 		ID:          appID,
 		CreatedAt:   time.Now().Format("02.01.2006 15:04"),
 		Customer:    customer,
 		Status:      "Новая",
-		Items:       []ExperimentItem{},
+		Items:       []MethaneItem{},
 		TotalAmount: 0,
 		Temperature: 100,
 		Result:      "Ожидание расчета",
@@ -353,7 +353,7 @@ func (r *Repository) ClearExperiment(appID string) error {
 		return fmt.Errorf("заявка не найдена")
 	}
 
-	app.Items = []ExperimentItem{}
+	app.Items = []MethaneItem{}
 	app.TotalAmount = 0
 	r.applications[appID] = app
 	return nil
