@@ -25,12 +25,12 @@ func StartServer() {
 
 	r.GET("/hello", handler.GetReagents)                 //список услуг
 	r.GET("/reagent/:id", handler.GetReagent)            //детальная страница услуги
-	r.GET("/experiment/view/:id", handler.GetExperiment) //страница заявки
+	r.GET("/methane/:id", handler.GetExperiment) //страница заявки
 
-	//r.POST("/experiment/add", handler.AddToExperiment)
-	//r.POST("/experiment/:id/clear", handler.ClearExperiment)
-	//r.POST("/experiment/:id/update-item", handler.UpdateExperimentItem)
-	//r.GET("/experiment/:app_id/remove/:item_id", handler.RemoveFromExperiment)
+	// r.POST("/methane/add", handler.AddToExperiment)
+	// r.POST("/methane/:id/clear", handler.ClearExperiment)
+	//r.POST("/methane/:id/update-item", handler.UpdateExperimentItem)
+	//r.GET("/methane/:app_id/remove/:item_id", handler.RemoveFromExperiment)
 
 	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 	log.Println("Server down")

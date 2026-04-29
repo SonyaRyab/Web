@@ -9,7 +9,8 @@
 body {
     font-family: Arial, sans-serif;
     background-color: #BCD4F7;
-    padding: 20px;
+    /* padding: 20px; */
+    padding: 0;
     max-width: 1200px;
     margin: 0 auto;
 }
@@ -40,6 +41,41 @@ header {
     color: #F59E0B;
     font-family: 'Russo One';
     white-space: nowrap;
+}
+
+.full-width-header {
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+    background: #FEF7DF;
+    padding: 20px 0;
+    margin-bottom: 30px;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.header-title {
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: center;
+    font-family: 'Russo One';
+    font-size: 28px;
+    color: #000000;
+    padding: 0 20px;
+}
+
+.tools-panel {
+    max-width: 1200px;
+    margin: 0 auto 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    padding: 0 20px;
+    position: relative;
 }
 
 .home-link {

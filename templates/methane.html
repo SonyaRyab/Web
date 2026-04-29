@@ -5,15 +5,16 @@
     <title>Заявка {{ .application.ID }}</title>
     <link rel="stylesheet" href="/static/styles/experiment_style.css">
 </head>
-<body>
-<header>
-    <div class="title-container">
-        <span class="calculator-title">Просмотр заявки</span>
-    </div>
+<body>  
+<header class="full-width-header">
+    <div class="header-title">Просмотр заявки</div>
+</header>
+
+<div class="tools-panel">
     <div class="home-link">
         <a href="/hello" class="calculate-btn" style="text-decoration: none;">Домой</a>
     </div>
-</header>
+</div>
 
 <main>
     <div class="application-header">
@@ -25,6 +26,14 @@
             <div class="info-row">
                 <span class="info-label">Модератор:</span>
                 <span class="info-value">{{ .application.Customer }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Описание:</span>
+                <span class="info-value">{{ .application.Description }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Температура:</span>
+                <span class="info-value">{{ .application.Temperature }} °C</span>
             </div>
         </div>
 

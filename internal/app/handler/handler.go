@@ -90,7 +90,7 @@ func (h *Handler) GetExperiment(ctx *gin.Context) {
 		return
 	}
 
-	ctx.HTML(http.StatusOK, "experiment.html", gin.H{
+	ctx.HTML(http.StatusOK, "methane.html", gin.H{
 		"time":        time.Now().Format("15:04:05"),
 		"application": application,
 	})
@@ -122,7 +122,7 @@ func (h *Handler) AddToExperiment(ctx *gin.Context) {
 		logrus.Error(err)
 	}
 
-	ctx.Redirect(http.StatusSeeOther, "/application/view/"+appID)
+	ctx.Redirect(http.StatusSeeOther, "/methane/"+appID)
 }
 
 func (h *Handler) UpdateExperimentItem(ctx *gin.Context) {
@@ -135,14 +135,14 @@ func (h *Handler) UpdateExperimentItem(ctx *gin.Context) {
 	itemID, err := strconv.Atoi(itemIDStr)
 	if err != nil {
 		logrus.Error(err)
-		ctx.Redirect(http.StatusSeeOther, "/application/view/"+appID)
+		ctx.Redirect(http.StatusSeeOther, "/methane/"+appID)
 		return
 	}
 
 	quantity, err := strconv.Atoi(quantityStr)
 	if err != nil {
 		logrus.Error(err)
-		ctx.Redirect(http.StatusSeeOther, "/application/view/"+appID)
+		ctx.Redirect(http.StatusSeeOther, "/methane/"+appID)
 		return
 	}
 
@@ -151,7 +151,7 @@ func (h *Handler) UpdateExperimentItem(ctx *gin.Context) {
 		logrus.Error(err)
 	}
 
-	ctx.Redirect(http.StatusSeeOther, "/application/view/"+appID)
+	ctx.Redirect(http.StatusSeeOther, "/methane/"+appID)
 }
 
 // Удаление услуги из заявки
@@ -162,7 +162,7 @@ func (h *Handler) RemoveFromExperiment(ctx *gin.Context) {
 	itemID, err := strconv.Atoi(itemIDStr)
 	if err != nil {
 		logrus.Error(err)
-		ctx.Redirect(http.StatusSeeOther, "/application/"+appID)
+		ctx.Redirect(http.StatusSeeOther, "/methane/"+appID)
 		return
 	}
 
@@ -171,7 +171,7 @@ func (h *Handler) RemoveFromExperiment(ctx *gin.Context) {
 		logrus.Error(err)
 	}
 
-	ctx.Redirect(http.StatusSeeOther, "/application/"+appID)
+	ctx.Redirect(http.StatusSeeOther, "/methane/"+appID)
 }
 
 // Очистка заявки (удаление всех услуг)
@@ -183,5 +183,5 @@ func (h *Handler) ClearApplication(ctx *gin.Context) {
 		logrus.Error(err)
 	}
 
-	ctx.Redirect(http.StatusSeeOther, "/application/view/"+appID)
+	ctx.Redirect(http.StatusSeeOther, "/methane/"+appID)
 }

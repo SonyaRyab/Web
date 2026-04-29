@@ -71,6 +71,8 @@ type Experiment struct {
 	Items       []ExperimentItem
 	TotalAmount int
 	Result      string
+	Temperature int
+	Description string
 }
 
 // ExperimentItem - услуга в заявке
@@ -81,6 +83,7 @@ type ExperimentItem struct {
 	Formula     string
 	Image       string
 	MolarMass   string
+	Temperature int
 	Quantity    int
 	Comment     string
 	Coefficient float64
@@ -222,6 +225,8 @@ func (r *Repository) createTestApplication() {
 		Status:      "В обработке",
 		Items:       []ExperimentItem{},
 		TotalAmount: 0,
+		Temperature: 100,
+		Description: "Эксперимент по синтезу метана по реакции Сабатье",
 		Result:      "CH4 - 95% выход",
 	}
 
@@ -296,6 +301,7 @@ func (r *Repository) CreateExperiment(customer string) (string, error) {
 		Status:      "Новая",
 		Items:       []ExperimentItem{},
 		TotalAmount: 0,
+		Temperature: 100,
 		Result:      "Ожидание расчета",
 	}
 
