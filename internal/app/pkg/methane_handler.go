@@ -3,9 +3,7 @@ package app
 import (
 	"net/http"
 	"strconv"
-
 	"lab4/internal/app/role"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -27,7 +25,7 @@ type CompleteMethaneReq struct {
 // @Success 200 {array} ds.Methane
 // @Failure 401 {object} map[string]interface{}
 // @Failure 500 {object} map[string]interface{}
-// @Security SessionCookieAuth
+// @Security BearerAuth
 // @Router /api/methanes [get]
 func (a *Application) GetMethanes(gCtx *gin.Context) {
 	userIDAny, ok := gCtx.Get("user_id")
@@ -54,6 +52,23 @@ func (a *Application) GetMethanes(gCtx *gin.Context) {
 	gCtx.JSON(http.StatusOK, items)
 }
 
+func (a *Application) GetMethaneByID(c *gin.Context) {
+    idStr := c.Param("id")
+    id, err := strconv.ParseInt(idStr, 10, 64)
+    if err != nil || id <= 0 {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "invalid methane id"})
+        return
+    }
+
+    methane, err := a.repo.GetMethaneByID(uint(id))
+    if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "methane not found"})
+		return
+    }
+
+    c.JSON(http.StatusOK, methane)
+}
+
 // CreateDraftMethane godoc
 // @Summary Создать черновик заявки
 // @Description Создаёт новую заявку и назначает текущего пользователя автором
@@ -62,7 +77,7 @@ func (a *Application) GetMethanes(gCtx *gin.Context) {
 // @Success 200 {object} ds.Methane
 // @Failure 401 {object} map[string]interface{}
 // @Failure 500 {object} map[string]interface{}
-// @Security SessionCookieAuth
+// @Security BearerAuth
 // @Router /api/methanes/draft [post]
 func (a *Application) CreateDraftMethane(gCtx *gin.Context) {
 	userIDAny, ok := gCtx.Get("user_id")
@@ -89,7 +104,7 @@ func (a *Application) CreateDraftMethane(gCtx *gin.Context) {
 // @Success 200 {object} ds.Methane
 // @Failure 401 {object} map[string]interface{}
 // @Failure 404 {object} map[string]interface{}
-// @Security SessionCookieAuth
+// @Security BearerAuth
 // @Router /api/methanes/draft [get]
 func (a *Application) GetDraftMethane(gCtx *gin.Context) {
 	userIDAny, ok := gCtx.Get("user_id")
@@ -123,7 +138,7 @@ func (a *Application) GetDraftMethane(gCtx *gin.Context) {
 // @Failure 403 {object} map[string]interface{}
 // @Failure 404 {object} map[string]interface{}
 // @Failure 500 {object} map[string]interface{}
-// @Security SessionCookieAuth
+// @Security BearerAuth
 // @Router /api/methanes/{id}/form [put]
 func (a *Application) FormMethane(gCtx *gin.Context) {
 	id64, err := strconv.ParseUint(gCtx.Param("id"), 10, 64)
@@ -173,7 +188,7 @@ func (a *Application) FormMethane(gCtx *gin.Context) {
 // @Failure 403 {object} map[string]interface{}
 // @Failure 404 {object} map[string]interface{}
 // @Failure 500 {object} map[string]interface{}
-// @Security SessionCookieAuth
+// @Security BearerAuth
 // @Router /api/methanes/{id}/complete [put]
 func (a *Application) CompleteMethane(gCtx *gin.Context) {
 	id64, err := strconv.ParseUint(gCtx.Param("id"), 10, 64)

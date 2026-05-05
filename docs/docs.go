@@ -10,12 +10,10 @@ const docTemplate = `{
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
         "contact": {
-            "name": "API Support",
-            "url": "https://vk.com/bmstu_schedule",
-            "email": "bitop@spatecon.ru"
+            "name": "API Support"
         },
         "license": {
-            "name": "AS IS (NO WARRANTY)"
+            "name": "AS IS"
         },
         "version": "{{.Version}}"
     },
@@ -26,7 +24,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
-                        "SessionCookieAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "Для исследователя возвращает только его заявки, для модератора и администратора — все",
@@ -68,7 +66,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
-                        "SessionCookieAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "produces": [
@@ -104,7 +102,7 @@ const docTemplate = `{
             "post": {
                 "security": [
                     {
-                        "SessionCookieAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "Создаёт новую заявку и назначает текущего пользователя автором",
@@ -143,7 +141,7 @@ const docTemplate = `{
             "put": {
                 "security": [
                     {
-                        "SessionCookieAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "Только модератор или администратор может завершить сформированную заявку",
@@ -225,7 +223,7 @@ const docTemplate = `{
             "put": {
                 "security": [
                     {
-                        "SessionCookieAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "Только владелец заявки может перевести её из черновика в статус \"сформирована\"",
@@ -343,7 +341,7 @@ const docTemplate = `{
         },
         "/auth/login": {
             "post": {
-                "description": "Создаёт серверную сессию в Redis и устанавливает cookie session_id",
+                "description": "Аутентификация через JWT, возвращает access_token",
                 "consumes": [
                     "application/json"
                 ],
@@ -353,7 +351,7 @@ const docTemplate = `{
                 "tags": [
                     "auth"
                 ],
-                "summary": "Вход пользователя",
+                "summary": "Вход пользователя (JWT)",
                 "parameters": [
                     {
                         "description": "Данные входа",
@@ -369,12 +367,37 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
+                            "$ref": "#/definitions/app.loginResp"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
                             "type": "object",
                             "additionalProperties": true
                         }
-                    },
-                    "400": {
-                        "description": "Bad Request",
+                    }
+                }
+            }
+        },
+        "/auth/logout": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Добавляет текущий JWT в blacklist Redis",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Выход (Blacklist JWT)",
+                "responses": {
+                    "200": {
+                        "description": "OK",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
@@ -386,20 +409,13 @@ const docTemplate = `{
                             "type": "object",
                             "additionalProperties": true
                         }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
                     }
                 }
             }
         },
         "/auth/register": {
             "post": {
-                "description": "Создаёт нового пользователя-исследователя",
+                "description": "Создаёт нового пользователя",
                 "consumes": [
                     "application/json"
                 ],
@@ -430,20 +446,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "409": {
-                        "description": "Conflict",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
@@ -487,6 +489,26 @@ const docTemplate = `{
                 }
             }
         },
+        "app.loginResp": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "type": "string"
+                },
+                "expires_in": {
+                    "type": "integer"
+                },
+                "login": {
+                    "type": "string"
+                },
+                "token_type": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
         "app.registerReq": {
             "type": "object",
             "properties": {
@@ -497,9 +519,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "pass": {
-                    "type": "string"
-                },
-                "role": {
                     "type": "string"
                 }
             }
@@ -625,10 +644,11 @@ const docTemplate = `{
         }
     },
     "securityDefinitions": {
-        "SessionCookieAuth": {
+        "BearerAuth": {
+            "description": "Type \"Bearer\" followed by a space and JWT token. Example: \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\"",
             "type": "apiKey",
-            "name": "session_id",
-            "in": "cookie"
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }`
@@ -638,9 +658,9 @@ var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
 	Host:             "localhost:8080",
 	BasePath:         "/",
-	Schemes:          []string{"http"},
-	Title:            "BITOP",
-	Description:      "Bmstu Open IT Platform",
+	Schemes:          []string{},
+	Title:            "Lab4 API",
+	Description:      "API with JWT Auth",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

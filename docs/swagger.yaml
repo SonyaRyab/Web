@@ -21,6 +21,19 @@ definitions:
       password:
         type: string
     type: object
+  app.loginResp:
+    properties:
+      access_token:
+        type: string
+      expires_in:
+        type: integer
+      login:
+        type: string
+      token_type:
+        type: string
+      username:
+        type: string
+    type: object
   app.registerReq:
     properties:
       login:
@@ -28,8 +41,6 @@ definitions:
       name:
         type: string
       pass:
-        type: string
-      role:
         type: string
     type: object
   app.registerResp:
@@ -114,13 +125,11 @@ definitions:
 host: localhost:8080
 info:
   contact:
-    email: bitop@spatecon.ru
     name: API Support
-    url: https://vk.com/bmstu_schedule
-  description: Bmstu Open IT Platform
+  description: API with JWT Auth
   license:
-    name: AS IS (NO WARRANTY)
-  title: BITOP
+    name: AS IS
+  title: Lab4 API
   version: "1.0"
 paths:
   /api/methanes:
@@ -147,7 +156,7 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - SessionCookieAuth: []
+      - BearerAuth: []
       summary: Список заявок
       tags:
       - methanes
@@ -203,7 +212,7 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - SessionCookieAuth: []
+      - BearerAuth: []
       summary: Завершить или отклонить заявку
       tags:
       - methanes
@@ -259,7 +268,7 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - SessionCookieAuth: []
+      - BearerAuth: []
       summary: Сформировать заявку
       tags:
       - methanes
@@ -283,7 +292,7 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - SessionCookieAuth: []
+      - BearerAuth: []
       summary: Получить черновик текущего пользователя
       tags:
       - methanes
@@ -307,7 +316,7 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - SessionCookieAuth: []
+      - BearerAuth: []
       summary: Создать черновик заявки
       tags:
       - methanes
@@ -340,7 +349,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: Создаёт серверную сессию в Redis и устанавливает cookie session_id
+      description: Аутентификация через JWT, возвращает access_token
       parameters:
       - description: Данные входа
         in: body
@@ -354,10 +363,23 @@ paths:
         "200":
           description: OK
           schema:
+            $ref: '#/definitions/app.loginResp'
+        "401":
+          description: Unauthorized
+          schema:
             additionalProperties: true
             type: object
-        "400":
-          description: Bad Request
+      summary: Вход пользователя (JWT)
+      tags:
+      - auth
+  /auth/logout:
+    post:
+      description: Добавляет текущий JWT в blacklist Redis
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
           schema:
             additionalProperties: true
             type: object
@@ -366,19 +388,16 @@ paths:
           schema:
             additionalProperties: true
             type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties: true
-            type: object
-      summary: Вход пользователя
+      security:
+      - BearerAuth: []
+      summary: Выход (Blacklist JWT)
       tags:
       - auth
   /auth/register:
     post:
       consumes:
       - application/json
-      description: Создаёт нового пользователя-исследователя
+      description: Создаёт нового пользователя
       parameters:
       - description: Данные регистрации
         in: body
@@ -398,24 +417,14 @@ paths:
           schema:
             additionalProperties: true
             type: object
-        "409":
-          description: Conflict
-          schema:
-            additionalProperties: true
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties: true
-            type: object
       summary: Регистрация пользователя
       tags:
       - auth
-schemes:
-- http
 securityDefinitions:
-  SessionCookieAuth:
-    in: cookie
-    name: session_id
+  BearerAuth:
+    description: 'Type "Bearer" followed by a space and JWT token. Example: "Bearer
+      eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."'
+    in: header
+    name: Authorization
     type: apiKey
 swagger: "2.0"

@@ -10,12 +10,25 @@ import (
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+
+	"time"
+	"github.com/gin-contrib/cors"
+	
 )
 
 func (a *Application) StartServer() {
 	log.Println("Server start up")
 
 	r := gin.Default()
+
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:5173"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}))
 
 	r.Use(gin.Recovery())
 
@@ -53,6 +66,7 @@ func (a *Application) StartServer() {
 	user.Use(a.WithJWTAuth())
 	{
 		user.GET("/methanes", a.GetMethanes)
+		user.GET("/methanes/:id", a.GetMethaneByID)
 		user.POST("/methanes/draft", a.CreateDraftMethane)
 		user.GET("/methanes/draft", a.GetDraftMethane)
 		user.PUT("/methanes/:id/form", a.FormMethane)

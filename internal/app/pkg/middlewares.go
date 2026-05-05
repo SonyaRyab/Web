@@ -54,9 +54,10 @@ func (a *Application) WithJWTAuth(assignedRoles ...role.Role) gin.HandlerFunc {
 		}
 
 		// Устанавливаем данные пользователя в контекст
-		gCtx.Set("user_id", claims.UserUUID)
-		gCtx.Set("user_role", claims.Role)
-		gCtx.Set("login", claims.Issuer)
+		gCtx.Set("userid", claims.UserID)
+		gCtx.Set("useruuid", claims.UserUUID)
+		gCtx.Set("userrole", claims.Role)
+		gCtx.Set("login", claims.Login)
 
 		// Проверка ролей
 		if len(assignedRoles) == 0 {

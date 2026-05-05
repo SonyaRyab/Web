@@ -21,7 +21,9 @@ type loginReq struct {
 }
 
 type loginResp struct {
-	ExpiresIn   time.Duration `json:"expires_in"`
+	Login       string        `json:"login"`
+	Username    string        `json:"username"`
+	ExpiresIn   int64  		  `json:"expires_in"`
 	AccessToken string        `json:"access_token"`
 	TokenType   string        `json:"token_type"`
 }
@@ -123,11 +125,13 @@ func (a *Application) Login(gCtx *gin.Context) {
 
 	token := jwt.NewWithClaims(jwt.GetSigningMethod(a.config.JWT.SigningMethod), &ds.JWTClaims{
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(a.config.JWT.ExpiresIn).Unix(),
+			ExpiresAt: int64(a.config.JWT.ExpiresIn.Seconds()),
 			IssuedAt:  time.Now().Unix(),
 			Issuer:    "lab4-backend",
 		},
+		UserID:   user.ID,
 		UserUUID: user.UUID,
+		Login:    user.Login,
 		Role:     user.Role,
 	})
 
@@ -138,7 +142,9 @@ func (a *Application) Login(gCtx *gin.Context) {
 	}
 
 	gCtx.JSON(http.StatusOK, loginResp{
-		ExpiresIn:   a.config.JWT.ExpiresIn,
+		Login:       user.Login,
+		Username:    user.Username,
+		ExpiresIn:   int64(a.config.JWT.ExpiresIn.Seconds()),
 		AccessToken: tokenString,
 		TokenType:   "Bearer",
 	})

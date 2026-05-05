@@ -80,8 +80,7 @@ func (r *Repository) CompleteMethane(id uint, currentUserID uint, status string)
 	}).Error
 }
 
-// @Security SessionCookieAuth
-
+// @Security BearerAuth
 func (r *Repository) GetMethanes() ([]ds.Methane, error) {
 	var methanes []ds.Methane
 	err := r.db.Find(&methanes).Error
@@ -240,7 +239,7 @@ func (r *Repository) GetMethanesWithFilter(status string, dateFrom, dateTo strin
 // GetDraftMethane получает черновик текущего пользователя
 func (r *Repository) GetDraftMethane(userID uint) (*ds.Methane, error) {
 	var methane ds.Methane
-	err := r.db.Where("professor_id = ? AND status = ?", userID, "черновик").First(&methane).Error
+	err := r.db.Where("researcher_id = ? AND status = ?", userID, "черновик").First(&methane).Error
 	if err != nil {
 		return nil, err
 	}
@@ -254,7 +253,7 @@ func (r *Repository) CreateDraftMethane(userID uint) (*ds.Methane, error) {
 		Name:       "Новый эксперимент",
 		Status:     "черновик",
 		DateCreate: now,
-		ProfessorID: &userID,
+		ResearcherID: userID,
 	}
 	err := r.db.Create(&methane).Error
 	return &methane, err
