@@ -8,20 +8,20 @@ import (
     "github.com/gin-gonic/gin"
 )
 
-func (a *Application) RequireModerator() gin.HandlerFunc {
-    return func(gCtx *gin.Context) {
-        roleAny, exists := gCtx.Get("user_role")
-        if !exists {
-            gCtx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
-            return
-        }
+func (a Application) RequireModerator() gin.HandlerFunc {
+	return func(gCtx *gin.Context) {
+		roleAny, exists := gCtx.Get("userrole")
+		if !exists {
+			gCtx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+			return
+		}
 
-        currentRole := roleAny.(role.Role)
-        if currentRole != role.Professor {
-            gCtx.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "forbidden"})
-            return
-        }
+		currentRole := roleAny.(role.Role)
+		if currentRole != role.Professor && currentRole != role.Admin {
+			gCtx.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "forbidden"})
+			return
+		}
 
-        gCtx.Next()
-    }
+		gCtx.Next()
+	}
 }

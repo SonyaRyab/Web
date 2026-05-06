@@ -6,4 +6,6 @@ type MethaneReagent struct {
 	ReagentID uint `gorm:"not null;uniqueIndex:idx_exp_reagent" json:"-"`
 	Quantity float64 `gorm:"type:decimal(10,2);not null" json:"quantity"`
 	MethaneYield float64 `gorm:"type:decimal(6,2);not null" json:"methane_yield"`
+
+	Reagent Reagent `gorm:"foreignKey:ReagentID" json:"reagent"`
 }
