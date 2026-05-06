@@ -8,7 +8,7 @@ import (
 func (r *Repository) GetMethanesForUser(userID uint, userRole role.Role) ([]ds.Methane, error) {
 	var items []ds.Methane
 
-	query := r.db.Preload("Professor").Preload("Researcher")
+	query := r.db.Preload("Moderator").Preload("Admin")
 
 	switch userRole {
     case role.Researcher:

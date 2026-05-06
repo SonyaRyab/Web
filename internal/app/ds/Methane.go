@@ -20,7 +20,7 @@ type Methane struct {
 	MethaneYield *float64         `gorm:"column:methane_yield" json:"methane_yield,omitempty"`
 
 	Admin        User             `gorm:"foreignKey:AdminID;references:ID" json:"researcher"`
-	Moderator    *User            `gorm:"foreignKey:ModeratorID;references:ID" json:"professor,omitempty"`
+	Moderator    *User            `gorm:"foreignKey:ModeratorID;references:ID"`
 	Reagents     []MethaneReagent `gorm:"foreignKey:MethaneID" json:"reagents,omitempty"`
 }
 

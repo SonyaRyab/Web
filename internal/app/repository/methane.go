@@ -12,8 +12,8 @@ func (r Repository) GetMethaneByID(id uint) (ds.Methane, error) {
 	var methane ds.Methane
 
 	err := r.db.
-		Preload("Professor").
-		Preload("Researcher").
+		Preload("Moderator").
+		Preload("Admin").
 		Preload("Reagents").
 		Preload("Reagents.Reagent").
 		Where("id = ?", id).
@@ -29,8 +29,8 @@ func (r Repository) GetDraftMethane(userID uint) (ds.Methane, error) {
 	var methane ds.Methane
 
 	err := r.db.
-		Preload("Professor").
-		Preload("Researcher").
+		Preload("Moderator").
+		Preload("Admin").
 		Preload("Reagents").
 		Preload("Reagents.Reagent").
 		Where("admin_id = ? AND status = ?", userID, "draft").
@@ -111,8 +111,8 @@ func (r Repository) GetMethaneWithReagents(id uint) (ds.Methane, error) {
 	var methane ds.Methane
 
 	err := r.db.
-		Preload("Professor").
-		Preload("Researcher").
+		Preload("Moderator").
+		Preload("Admin").
 		Preload("Reagents").
 		Preload("Reagents.Reagent").
 		Where("id = ?", id).
