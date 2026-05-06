@@ -17,7 +17,7 @@ func (a Application) RequireModerator() gin.HandlerFunc {
 		}
 
 		currentRole := roleAny.(role.Role)
-		if currentRole != role.Professor && currentRole != role.Admin {
+		if currentRole != role.Moderator && currentRole != role.Admin {
 			gCtx.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "forbidden"})
 			return
 		}

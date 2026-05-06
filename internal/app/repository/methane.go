@@ -12,8 +12,8 @@ func (r Repository) GetMethaneByID(id uint) (ds.Methane, error) {
 	var methane ds.Methane
 
 	err := r.db.
-		Preload("Moderator").
-		Preload("Admin").
+		// Preload("Moderator").
+		// Preload("Admin").
 		Preload("Reagents").
 		Preload("Reagents.Reagent").
 		Where("id = ?", id).

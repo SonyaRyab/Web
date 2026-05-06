@@ -11,10 +11,10 @@ func (r *Repository) GetMethanesForUser(userID uint, userRole role.Role) ([]ds.M
 	query := r.db.Preload("Moderator").Preload("Admin")
 
 	switch userRole {
-    case role.Researcher:
-        err := query.Where("researcher_id = ?", userID).Find(&items).Error
+    case role.Admin:
+        err := query.Where("admin_id = ?", userID).Find(&items).Error
         return items, err
-    case role.Professor:
+    case role.Moderator:
         err := query.Find(&items).Error
         return items, err
     default:

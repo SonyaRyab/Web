@@ -72,10 +72,10 @@ func (a *Application) StartServer() {
 		user.PUT("/methanes/:id/form", a.FormMethane)
 	}
 
-	researcher := r.Group("/api")
-	researcher.Use(a.WithJWTAuth())
+	admin := r.Group("/api")
+	admin.Use(a.WithJWTAuth())
 	{
-		researcher.PUT("/methanes/:id/complete", a.RequireModerator(), a.CompleteMethane)
+		admin.PUT("/methanes/:id/complete", a.RequireModerator(), a.CompleteMethane)
 	}
 
 	addr := a.config.ServiceHost + ":" + strconv.Itoa(a.config.ServicePort)

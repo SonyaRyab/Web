@@ -3,7 +3,6 @@ package role
 type Role string
 
 const (
-	Researcher Role = "researcher"
-    Professor  Role = "professor"
+    Moderator  Role = "moderator"
     Admin      Role = "admin"
 )

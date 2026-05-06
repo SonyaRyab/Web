@@ -86,7 +86,7 @@ func (a Application) Register(gCtx *gin.Context) {
 	Login:    req.Login,
 	Username: req.Username,
 	Email:    req.Login + "@test.ru",
-	Role:     role.Researcher,
+	Role:     role.Admin,
 	PassHash: passHash,
 	})
 	if err != nil {

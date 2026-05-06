@@ -1,19 +1,5 @@
 basePath: /
 definitions:
-  app.CompleteMethaneReq:
-    properties:
-      status:
-        type: string
-    type: object
-  app.FormMethaneReq:
-    properties:
-      methane_yield:
-        type: number
-      name:
-        type: string
-      temperature:
-        type: number
-    type: object
   app.loginReq:
     properties:
       login:
@@ -23,13 +9,13 @@ definitions:
     type: object
   app.loginResp:
     properties:
-      access_token:
+      accesstoken:
         type: string
-      expires_in:
+      expiresin:
         type: integer
       login:
         type: string
-      token_type:
+      tokentype:
         type: string
       username:
         type: string
@@ -48,36 +34,6 @@ definitions:
       ok:
         type: boolean
     type: object
-  ds.Methane:
-    properties:
-      date_create:
-        type: string
-      date_finish:
-        type: string
-      date_update:
-        type: string
-      id:
-        type: integer
-      name:
-        type: string
-      professor:
-        $ref: '#/definitions/ds.User'
-      reagents:
-        items:
-          $ref: '#/definitions/ds.MethaneReagent'
-        type: array
-      researcher:
-        $ref: '#/definitions/ds.User'
-      status:
-        type: string
-    type: object
-  ds.MethaneReagent:
-    properties:
-      methane_yield:
-        type: number
-      quantity:
-        type: number
-    type: object
   ds.Reagent:
     properties:
       description:
@@ -95,33 +51,6 @@ definitions:
       video:
         type: string
     type: object
-  ds.User:
-    properties:
-      email:
-        type: string
-      id:
-        type: integer
-      is_professor:
-        type: boolean
-      login:
-        type: string
-      role:
-        $ref: '#/definitions/role.Role'
-      username:
-        type: string
-      uuid:
-        type: string
-    type: object
-  role.Role:
-    enum:
-    - researcher
-    - professor
-    - admin
-    type: string
-    x-enum-varnames:
-    - Researcher
-    - Professor
-    - Admin
 host: localhost:8080
 info:
   contact:
@@ -132,194 +61,6 @@ info:
   title: Lab4 API
   version: "1.0"
 paths:
-  /api/methanes:
-    get:
-      description: Для исследователя возвращает только его заявки, для модератора
-        и администратора — все
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/ds.Methane'
-            type: array
-        "401":
-          description: Unauthorized
-          schema:
-            additionalProperties: true
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties: true
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Список заявок
-      tags:
-      - methanes
-  /api/methanes/{id}/complete:
-    put:
-      consumes:
-      - application/json
-      description: Только модератор или администратор может завершить сформированную
-        заявку
-      parameters:
-      - description: ID заявки
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: Статус завершения
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/app.CompleteMethaneReq'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties: true
-            type: object
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties: true
-            type: object
-        "401":
-          description: Unauthorized
-          schema:
-            additionalProperties: true
-            type: object
-        "403":
-          description: Forbidden
-          schema:
-            additionalProperties: true
-            type: object
-        "404":
-          description: Not Found
-          schema:
-            additionalProperties: true
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties: true
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Завершить или отклонить заявку
-      tags:
-      - methanes
-  /api/methanes/{id}/form:
-    put:
-      consumes:
-      - application/json
-      description: Только владелец заявки может перевести её из черновика в статус
-        "сформирована"
-      parameters:
-      - description: ID заявки
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: Поля заявки для обновления
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/app.FormMethaneReq'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties: true
-            type: object
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties: true
-            type: object
-        "401":
-          description: Unauthorized
-          schema:
-            additionalProperties: true
-            type: object
-        "403":
-          description: Forbidden
-          schema:
-            additionalProperties: true
-            type: object
-        "404":
-          description: Not Found
-          schema:
-            additionalProperties: true
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties: true
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Сформировать заявку
-      tags:
-      - methanes
-  /api/methanes/draft:
-    get:
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/ds.Methane'
-        "401":
-          description: Unauthorized
-          schema:
-            additionalProperties: true
-            type: object
-        "404":
-          description: Not Found
-          schema:
-            additionalProperties: true
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Получить черновик текущего пользователя
-      tags:
-      - methanes
-    post:
-      description: Создаёт новую заявку и назначает текущего пользователя автором
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/ds.Methane'
-        "401":
-          description: Unauthorized
-          schema:
-            additionalProperties: true
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties: true
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Создать черновик заявки
-      tags:
-      - methanes
   /api/reagents:
     get:
       description: Публичный метод чтения данных
@@ -349,9 +90,9 @@ paths:
     post:
       consumes:
       - application/json
-      description: Аутентификация через JWT, возвращает access_token
+      description: JWT, accesstoken
       parameters:
-      - description: Данные входа
+      - description: login request
         in: body
         name: input
         required: true
@@ -369,12 +110,12 @@ paths:
           schema:
             additionalProperties: true
             type: object
-      summary: Вход пользователя (JWT)
+      summary: JWT
       tags:
       - auth
   /auth/logout:
     post:
-      description: Добавляет текущий JWT в blacklist Redis
+      description: JWT blacklist Redis
       produces:
       - application/json
       responses:
@@ -390,16 +131,15 @@ paths:
             type: object
       security:
       - BearerAuth: []
-      summary: Выход (Blacklist JWT)
+      summary: Blacklist JWT
       tags:
       - auth
   /auth/register:
     post:
       consumes:
       - application/json
-      description: Создаёт нового пользователя
       parameters:
-      - description: Данные регистрации
+      - description: register request
         in: body
         name: input
         required: true
@@ -417,7 +157,6 @@ paths:
           schema:
             additionalProperties: true
             type: object
-      summary: Регистрация пользователя
       tags:
       - auth
 securityDefinitions:

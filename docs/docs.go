@@ -20,287 +20,6 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/api/methanes": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Для исследователя возвращает только его заявки, для модератора и администратора — все",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "methanes"
-                ],
-                "summary": "Список заявок",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/ds.Methane"
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            }
-        },
-        "/api/methanes/draft": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "methanes"
-                ],
-                "summary": "Получить черновик текущего пользователя",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/ds.Methane"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            },
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Создаёт новую заявку и назначает текущего пользователя автором",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "methanes"
-                ],
-                "summary": "Создать черновик заявки",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/ds.Methane"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            }
-        },
-        "/api/methanes/{id}/complete": {
-            "put": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Только модератор или администратор может завершить сформированную заявку",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "methanes"
-                ],
-                "summary": "Завершить или отклонить заявку",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID заявки",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Статус завершения",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/app.CompleteMethaneReq"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            }
-        },
-        "/api/methanes/{id}/form": {
-            "put": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Только владелец заявки может перевести её из черновика в статус \"сформирована\"",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "methanes"
-                ],
-                "summary": "Сформировать заявку",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID заявки",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Поля заявки для обновления",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/app.FormMethaneReq"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            }
-        },
         "/api/reagents": {
             "get": {
                 "description": "Публичный метод чтения данных",
@@ -341,7 +60,7 @@ const docTemplate = `{
         },
         "/auth/login": {
             "post": {
-                "description": "Аутентификация через JWT, возвращает access_token",
+                "description": "JWT, accesstoken",
                 "consumes": [
                     "application/json"
                 ],
@@ -351,10 +70,10 @@ const docTemplate = `{
                 "tags": [
                     "auth"
                 ],
-                "summary": "Вход пользователя (JWT)",
+                "summary": "JWT",
                 "parameters": [
                     {
-                        "description": "Данные входа",
+                        "description": "login request",
                         "name": "input",
                         "in": "body",
                         "required": true,
@@ -387,14 +106,14 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Добавляет текущий JWT в blacklist Redis",
+                "description": "JWT blacklist Redis",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "auth"
                 ],
-                "summary": "Выход (Blacklist JWT)",
+                "summary": "Blacklist JWT",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -415,7 +134,6 @@ const docTemplate = `{
         },
         "/auth/register": {
             "post": {
-                "description": "Создаёт нового пользователя",
                 "consumes": [
                     "application/json"
                 ],
@@ -425,10 +143,9 @@ const docTemplate = `{
                 "tags": [
                     "auth"
                 ],
-                "summary": "Регистрация пользователя",
                 "parameters": [
                     {
-                        "description": "Данные регистрации",
+                        "description": "register request",
                         "name": "input",
                         "in": "body",
                         "required": true,
@@ -456,28 +173,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "app.CompleteMethaneReq": {
-            "type": "object",
-            "properties": {
-                "status": {
-                    "type": "string"
-                }
-            }
-        },
-        "app.FormMethaneReq": {
-            "type": "object",
-            "properties": {
-                "methane_yield": {
-                    "type": "number"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "temperature": {
-                    "type": "number"
-                }
-            }
-        },
         "app.loginReq": {
             "type": "object",
             "properties": {
@@ -492,16 +187,16 @@ const docTemplate = `{
         "app.loginResp": {
             "type": "object",
             "properties": {
-                "access_token": {
+                "accesstoken": {
                     "type": "string"
                 },
-                "expires_in": {
+                "expiresin": {
                     "type": "integer"
                 },
                 "login": {
                     "type": "string"
                 },
-                "token_type": {
+                "tokentype": {
                     "type": "string"
                 },
                 "username": {
@@ -531,52 +226,6 @@ const docTemplate = `{
                 }
             }
         },
-        "ds.Methane": {
-            "type": "object",
-            "properties": {
-                "date_create": {
-                    "type": "string"
-                },
-                "date_finish": {
-                    "type": "string"
-                },
-                "date_update": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "professor": {
-                    "$ref": "#/definitions/ds.User"
-                },
-                "reagents": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/ds.MethaneReagent"
-                    }
-                },
-                "researcher": {
-                    "$ref": "#/definitions/ds.User"
-                },
-                "status": {
-                    "type": "string"
-                }
-            }
-        },
-        "ds.MethaneReagent": {
-            "type": "object",
-            "properties": {
-                "methane_yield": {
-                    "type": "number"
-                },
-                "quantity": {
-                    "type": "number"
-                }
-            }
-        },
         "ds.Reagent": {
             "type": "object",
             "properties": {
@@ -602,45 +251,6 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
-        },
-        "ds.User": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "is_professor": {
-                    "type": "boolean"
-                },
-                "login": {
-                    "type": "string"
-                },
-                "role": {
-                    "$ref": "#/definitions/role.Role"
-                },
-                "username": {
-                    "type": "string"
-                },
-                "uuid": {
-                    "type": "string"
-                }
-            }
-        },
-        "role.Role": {
-            "type": "string",
-            "enum": [
-                "researcher",
-                "professor",
-                "admin"
-            ],
-            "x-enum-varnames": [
-                "Researcher",
-                "Professor",
-                "Admin"
-            ]
         }
     },
     "securityDefinitions": {

@@ -20,7 +20,7 @@ type Methane struct {
 	MethaneYield *float64         `gorm:"column:methane_yield" json:"methane_yield,omitempty"`
 
 	Admin        User             `gorm:"foreignKey:AdminID;references:ID" json:"researcher"`
-	Moderator    *User            `gorm:"foreignKey:ModeratorID;references:ID"`
+	Moderator    *User            `gorm:"foreignKey:ModeratorID;references:ID" json:"professor,omitempty"`
 	Reagents     []MethaneReagent `gorm:"foreignKey:MethaneID" json:"reagents,omitempty"`
 }
 
@@ -35,6 +35,6 @@ type MethaneListSerializer struct {
 
 type FullMethaneSerializer struct {
 	Methane
-	ResearcherName string `json:"researcher_name"`
-	ProfessorName  string `json:"professor_name,omitempty"`
+	AdminName string `json:"researcher_name"`
+	ModeratorName  string `json:"professor_name,omitempty"`
 }
