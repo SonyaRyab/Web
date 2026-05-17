@@ -161,3 +161,129 @@ func (r Repository) CompleteMethane(id uint, currentUserID uint, status string) 
 			"date_finish":  now,
 		}).Error
 }
+
+// func (r Repository) AddReagentToDraft(methaneID uint, userID uint, reagentID uint, quantity int) error {
+//     var methane ds.Methane
+//     err := r.db.Where("id = ?", methaneID).First(&methane).Error
+//     if err != nil {
+//         return err
+//     }
+
+//     if methane.AdminID != userID {
+//         return errors.New("forbidden")
+//     }
+
+//     if methane.Status != "draft" {
+//         return errors.New("only draft methane can be modified")
+//     }
+
+//     // Проверяем, существует ли реагент
+//     var reagent ds.Reagent
+//     err = r.db.Where("id = ?", reagentID).First(&reagent).Error
+//     if err != nil {
+//         return errors.New("reagent not found")
+//     }
+
+//     // Проверяем, не добавлен ли уже этот реагент
+//     var existing ds.MethaneReagent
+//     err = r.db.Where("methane_id = ? AND reagent_id = ?", methaneID, reagentID).First(&existing).Error
+//     if existing != nil {
+// 		existing.Quantity += float64(quantity)
+// 	} else {
+// 		draft.Reagents = append(draft.Reagents, ds.MethaneReagent{
+// 			ReagentID: reagentID,
+// 			Quantity:  float64(quantity),
+// 		})
+// 	}
+
+//     // Если нет, создаём новую запись
+//     methaneReagent := ds.MethaneReagent{
+//         MethaneID:  methaneID,
+//         ReagentID:  reagentID,
+//         Quantity:   quantity,
+//     }
+
+//     return r.db.Create(&methaneReagent).Error
+// }
+
+func (r Repository) AddReagentToDraft(methaneID uint, userID uint, reagentID uint, quantity int) error {
+    var methane ds.Methane
+    err := r.db.Where("id = ?", methaneID).First(&methane).Error
+    if err != nil {
+        return err
+    }
+
+    if methane.AdminID != userID {
+        return errors.New("forbidden")
+    }
+
+    if methane.Status != "draft" {
+        return errors.New("only draft methane can be modified")
+    }
+
+    // Проверяем, существует ли реагент
+    var reagent ds.Reagent
+    err = r.db.Where("id = ?", reagentID).First(&reagent).Error
+    if err != nil {
+        return errors.New("reagent not found")
+    }
+
+    // Проверяем, не добавлен ли уже этот реагент
+    var existing ds.MethaneReagent
+    err = r.db.Where("methane_id = ? AND reagent_id = ?", methaneID, reagentID).First(&existing).Error
+    
+    if err == nil {
+        // Нашли — увеличиваем количество
+        return r.db.Model(&ds.MethaneReagent{}).
+            Where("methane_id = ? AND reagent_id = ?", methaneID, reagentID).
+            Update("quantity", existing.Quantity + float64(quantity)).Error
+    }
+
+    // Не нашли — создаём новую запись
+    methaneReagent := ds.MethaneReagent{
+        MethaneID: methaneID,
+        ReagentID: reagentID,
+        Quantity:  float64(quantity),
+    }
+
+    return r.db.Create(&methaneReagent).Error
+}
+
+func (r Repository) UpdateReagentQuantity(methaneID uint, userID uint, reagentID uint, quantity int) error {
+    var methane ds.Methane
+    err := r.db.Where("id = ?", methaneID).First(&methane).Error
+    if err != nil {
+        return err
+    }
+
+    if methane.AdminID != userID {
+        return errors.New("forbidden")
+    }
+
+    if methane.Status != "draft" {
+        return errors.New("only draft methane can be modified")
+    }
+
+    return r.db.Model(&ds.MethaneReagent{}).
+        Where("methane_id = ? AND reagent_id = ?", methaneID, reagentID).
+        Update("quantity", quantity).Error
+}
+
+func (r Repository) RemoveReagentFromDraft(methaneID uint, userID uint, reagentID uint) error {
+    var methane ds.Methane
+    err := r.db.Where("id = ?", methaneID).First(&methane).Error
+    if err != nil {
+        return err
+    }
+
+    if methane.AdminID != userID {
+        return errors.New("forbidden")
+    }
+
+    if methane.Status != "draft" {
+        return errors.New("only draft methane can be modified")
+    }
+
+    return r.db.Where("methane_id = ? AND reagent_id = ?", methaneID, reagentID).
+        Delete(&ds.MethaneReagent{}).Error
+}

@@ -14,6 +14,173 @@
     "host": "localhost:8080",
     "basePath": "/",
     "paths": {
+        "/api/methanes/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "methanes"
+                ],
+                "summary": "Получить заявку по ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Methane ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ds.Methane"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/api/methanes/{id}/reagents": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "methanes"
+                ],
+                "summary": "Добавить реагент в черновик заявки",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Methane ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Reagent data",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/app.AddReagentReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/api/methanes/{id}/reagents/{reagent_id}": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "methanes"
+                ],
+                "summary": "Обновить количество реагента в заявке",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Methane ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Reagent ID",
+                        "name": "reagent_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Quantity",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/app.AddReagentReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "methanes"
+                ],
+                "summary": "Удалить реагент из заявки",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Methane ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Reagent ID",
+                        "name": "reagent_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/api/reagents": {
             "get": {
                 "description": "Публичный метод чтения данных",
@@ -167,6 +334,22 @@
         }
     },
     "definitions": {
+        "app.AddReagentReq": {
+            "type": "object",
+            "required": [
+                "quantity",
+                "reagent_id"
+            ],
+            "properties": {
+                "quantity": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "reagent_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "app.loginReq": {
             "type": "object",
             "properties": {
@@ -220,6 +403,61 @@
                 }
             }
         },
+        "ds.Methane": {
+            "type": "object",
+            "properties": {
+                "date_create": {
+                    "type": "string"
+                },
+                "date_finish": {
+                    "type": "string"
+                },
+                "date_form": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "methane_yield": {
+                    "type": "number"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "professor": {
+                    "$ref": "#/definitions/ds.User"
+                },
+                "reagents": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ds.MethaneReagent"
+                    }
+                },
+                "researcher": {
+                    "$ref": "#/definitions/ds.User"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "temperature": {
+                    "type": "number"
+                }
+            }
+        },
+        "ds.MethaneReagent": {
+            "type": "object",
+            "properties": {
+                "methane_yield": {
+                    "type": "number"
+                },
+                "quantity": {
+                    "type": "number"
+                },
+                "reagent": {
+                    "$ref": "#/definitions/ds.Reagent"
+                }
+            }
+        },
         "ds.Reagent": {
             "type": "object",
             "properties": {
@@ -245,6 +483,43 @@
                     "type": "string"
                 }
             }
+        },
+        "ds.User": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "is_professor": {
+                    "type": "boolean"
+                },
+                "login": {
+                    "type": "string"
+                },
+                "role": {
+                    "$ref": "#/definitions/role.Role"
+                },
+                "username": {
+                    "type": "string"
+                },
+                "uuid": {
+                    "type": "string"
+                }
+            }
+        },
+        "role.Role": {
+            "type": "string",
+            "enum": [
+                "moderator",
+                "admin"
+            ],
+            "x-enum-varnames": [
+                "Moderator",
+                "Admin"
+            ]
         }
     },
     "securityDefinitions": {

@@ -1,5 +1,16 @@
 basePath: /
 definitions:
+  app.AddReagentReq:
+    properties:
+      quantity:
+        minimum: 1
+        type: integer
+      reagent_id:
+        type: integer
+    required:
+    - quantity
+    - reagent_id
+    type: object
   app.loginReq:
     properties:
       login:
@@ -34,6 +45,42 @@ definitions:
       ok:
         type: boolean
     type: object
+  ds.Methane:
+    properties:
+      date_create:
+        type: string
+      date_finish:
+        type: string
+      date_form:
+        type: string
+      id:
+        type: integer
+      methane_yield:
+        type: number
+      name:
+        type: string
+      professor:
+        $ref: '#/definitions/ds.User'
+      reagents:
+        items:
+          $ref: '#/definitions/ds.MethaneReagent'
+        type: array
+      researcher:
+        $ref: '#/definitions/ds.User'
+      status:
+        type: string
+      temperature:
+        type: number
+    type: object
+  ds.MethaneReagent:
+    properties:
+      methane_yield:
+        type: number
+      quantity:
+        type: number
+      reagent:
+        $ref: '#/definitions/ds.Reagent'
+    type: object
   ds.Reagent:
     properties:
       description:
@@ -51,6 +98,31 @@ definitions:
       video:
         type: string
     type: object
+  ds.User:
+    properties:
+      email:
+        type: string
+      id:
+        type: integer
+      is_professor:
+        type: boolean
+      login:
+        type: string
+      role:
+        $ref: '#/definitions/role.Role'
+      username:
+        type: string
+      uuid:
+        type: string
+    type: object
+  role.Role:
+    enum:
+    - moderator
+    - admin
+    type: string
+    x-enum-varnames:
+    - Moderator
+    - Admin
 host: localhost:8080
 info:
   contact:
@@ -61,6 +133,112 @@ info:
   title: Lab4 API
   version: "1.0"
 paths:
+  /api/methanes/{id}:
+    get:
+      parameters:
+      - description: Methane ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ds.Methane'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Получить заявку по ID
+      tags:
+      - methanes
+  /api/methanes/{id}/reagents:
+    post:
+      parameters:
+      - description: Methane ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Reagent data
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/app.AddReagentReq'
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Добавить реагент в черновик заявки
+      tags:
+      - methanes
+  /api/methanes/{id}/reagents/{reagent_id}:
+    delete:
+      parameters:
+      - description: Methane ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Reagent ID
+        in: path
+        name: reagent_id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Удалить реагент из заявки
+      tags:
+      - methanes
+    put:
+      parameters:
+      - description: Methane ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Reagent ID
+        in: path
+        name: reagent_id
+        required: true
+        type: integer
+      - description: Quantity
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/app.AddReagentReq'
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Обновить количество реагента в заявке
+      tags:
+      - methanes
   /api/reagents:
     get:
       description: Публичный метод чтения данных
