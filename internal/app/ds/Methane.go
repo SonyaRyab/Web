@@ -1,4 +1,3 @@
-// заявки
 package ds
 
 import (
@@ -10,30 +9,39 @@ type Methane struct {
 	Name         string           `gorm:"type:varchar(100)" json:"name"`
 	Status       string           `gorm:"type:varchar(20)"`
 	DateCreate   time.Time        `json:"date_create"`
-	DateForm     time.Time        `gorm:"default:null" json:"date_update"`
+	DateForm     time.Time        `gorm:"default:null" json:"date_form"`
 	DateFinish   *time.Time        `gorm:"default:null" json:"date_finish"`
 	AdminID      uint             `gorm:"not null" json:"-"`
 	ModeratorID  *uint            `gorm:"index" json:"-"`
 	Temperature  float64          `gorm:"type:decimal(6,2)" json:"temperature"`
 	MethaneYield float64          `gorm:"type:decimal(5,2)" json:"methane_yield"`
+	Img          string           `gorm:"type:varchar(255)" json:"img"`
 	Admin        User             `gorm:"foreignKey:AdminID" json:"admin"`
-	Moderator    User             `gorm:"foreignKey:ModeratorID" json:"moderator,omitempty"`
+	Moderator    User             `gorm:"foreignKey:ModeratorID" json:"-"`
 	Reagents     []MethaneReagent `gorm:"foreignKey:MethaneID" json:"reagents,omitempty"`
 }
 
 // Сериализатор для списка (без деталей)
-type MethaneListSerializer struct {
-	ID           uint      `json:"id"`
-	Name         string    `json:"name"`
-	Status       string    `json:"status"`
-	DateCreate   time.Time `json:"date_create"`
-	DateForm     time.Time `json:"date_form"`
-	ReagentCount int64     `json:"reagent_count"`
-}
+// type MethaneListSerializer struct {
+// 	ID           uint      `json:"id"`
+// 	Name         string    `json:"name"`
+// 	Status       string    `json:"status"`
+// 	DateCreate   time.Time `json:"date_create"`
+// 	DateForm     time.Time `json:"date_form"`
+// 	ReagentCount int64     `json:"reagent_count"`
+// }
 
 // Сериализатор для детального просмотра
 type FullMethaneSerializer struct {
-	Methane
-	AdminName     string `json:"admin_name"`
-	ModeratorName string `json:"moderator_name,omitempty"`
+	ID           uint             `json:"id"`
+	Name         string           `json:"name"`
+	Status       string           `json:"status"`
+	DateCreate   time.Time        `json:"date_create"`
+	DateForm     time.Time        `json:"date_form"`
+	DateFinish   *time.Time       `json:"date_finish"`
+	Temperature  float64          `json:"temperature"`
+	MethaneYield float64          `json:"methane_yield"`
+	Img          string           `json:"img"`
+	Admin        User             `json:"admin"`
+	Reagents     []MethaneReagent `json:"reagents"`
 }

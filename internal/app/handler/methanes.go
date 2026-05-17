@@ -28,7 +28,6 @@ func (h *Handler) GetMethanesAPI(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
-		// "status": "success",
 		"data":   methanes,
 	})
 }
@@ -37,27 +36,31 @@ func (h *Handler) GetMethaneByIdAPI(ctx *gin.Context) {
 	strId := ctx.Param("id")
 	id, err := strconv.Atoi(strId)
 	if err != nil {
-		h.errorHandler(ctx, http.StatusInternalServerError, err)
+		h.errorHandler(ctx, http.StatusBadRequest, err)
 		return
 	}
 
-	methane, err := h.Repository.GetMethane(id)
+	methane, err := h.Repository.GetMethaneWithReagents(uint(id))
 	if err != nil {
-		h.errorHandler(ctx, http.StatusInternalServerError, err)
+		h.errorHandler(ctx, http.StatusNotFound, err)
 		return
 	}
 
-	// Т.к. мы получаем подробную информацию об акции, используем расширенный сериализатор
 	fullMethane := ds.FullMethaneSerializer{
-		Methane:   methane,
-		AdminName: methane.Admin.Login,
+		ID:           methane.ID,
+		Name:         methane.Name,
+		Status:       methane.Status,
+		DateCreate:   methane.DateCreate,
+		DateForm:     methane.DateForm,
+		DateFinish:   methane.DateFinish,
+		Temperature:  methane.Temperature,
+		MethaneYield: methane.MethaneYield,
+		Img:          methane.Img,
+		Admin:        methane.Admin,
+		Reagents:     methane.Reagents,
 	}
-	if methane.ModeratorID != nil {
-		fullMethane.ModeratorName = methane.Moderator.Login
-	}
-
+	
 	ctx.JSON(http.StatusOK, gin.H{
-		// "status": "success",
 		"data":   fullMethane,
 	})
 }
@@ -72,7 +75,6 @@ func (h *Handler) CreateDraftMethaneAPI(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusCreated, gin.H{
-		// "status":  "success",
 		"data":    methane,
 		"message": "черновик создан",
 	})
@@ -118,7 +120,6 @@ func (h *Handler) AddMethaneAPI(ctx *gin.Context) {
 
 	methane := ds.Methane{
 		Name:   ctx.Request.FormValue("name"),
-		// Status: ctx.Request.FormValue("status"),
 		AdminID: 1, // временный хардкод
 	}
 
@@ -151,13 +152,11 @@ func (h *Handler) AddMethaneAPI(ctx *gin.Context) {
 		}
 
 		ctx.JSON(http.StatusCreated, gin.H{
-			// "status":  "success",
 			"data":    updatedMethane,
 			"message": "метан успешно добавлен",
 		})
 	} else {
 		ctx.JSON(http.StatusCreated, gin.H{
-			// "status":  "success",
 			"data":    methane,
 			"message": "метан успешно добавлен",
 		})
@@ -217,7 +216,6 @@ func (h *Handler) FormMethaneAPI(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
-		// "status":  "success",
 		"message": "заявка сформирована",
 	})
 }
@@ -309,7 +307,6 @@ func (h *Handler) UpdateMethaneAPI(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
-		// "status":  "success",
 		"data":    updatedMethane,
 		"message": "запись успешно обновлена",
 	})
@@ -349,7 +346,6 @@ func (h *Handler) CompleteMethaneAPI(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
-		// "status":  "success",
 		"message": "заявка завершена",
 	})
 }

@@ -166,8 +166,8 @@ func (r *Repository) AddOrReplaceMethaneImage(methaneID uint, header *multipart.
 }
 
 // GetMethanesWithFilter получает заявки с фильтрацией по дате и статусу
-func (r *Repository) GetMethanesWithFilter(status string, dateFrom, dateTo string) ([]ds.MethaneListSerializer, error) {
-	var results []ds.MethaneListSerializer
+func (r *Repository) GetMethanesWithFilter(status string, dateFrom, dateTo string) ([]ds.FullMethaneSerializer, error) {
+	var results []ds.FullMethaneSerializer
 
 	query := r.db.Model(&ds.Methane{}).
 		Select("methanes.*, COUNT(methane_reagents.id) as reagent_count").

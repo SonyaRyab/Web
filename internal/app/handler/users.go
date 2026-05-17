@@ -34,7 +34,6 @@ func (h *Handler) RegisterUserAPI(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusCreated, gin.H{
-		// "status":  "success",
 		"data":    gin.H{"id": user.ID, "login": user.Login},
 		"message": "пользователь зарегистрирован",
 	})
@@ -43,7 +42,6 @@ func (h *Handler) RegisterUserAPI(ctx *gin.Context) {
 func (h *Handler) LoginAPI(ctx *gin.Context) {
 	// Заглушка для 4ой лабы
 	ctx.JSON(http.StatusOK, gin.H{
-		// "status":  "success",
 		"message": "аутентификация (заглушка)",
 	})
 }
@@ -51,7 +49,6 @@ func (h *Handler) LoginAPI(ctx *gin.Context) {
 func (h *Handler) LogoutAPI(ctx *gin.Context) {
 	// Заглушка для 4ой лабы
 	ctx.JSON(http.StatusOK, gin.H{
-		// "status":  "success",
 		"message": "деавторизация (заглушка)",
 	})
 }
@@ -71,7 +68,6 @@ func (h *Handler) GetUserMethanesAPI(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
-		// "status": "success",
 		"data":   userMethanes,
 	})
 }

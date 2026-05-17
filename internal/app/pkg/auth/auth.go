@@ -1,19 +1,16 @@
-package auth
-
-import "lab3/internal/app/ds"
 
 // CurrentUserID возвращает ID текущего пользователя (заглушка для 3ей лабы)
 // func CurrentUserID() uint {
 // 	return 1 // Хардкод для тестового пользователя "test"
 // }
 
-// // CurrentUserIsModerator проверяет, является ли текущий пользователь модератором
+// CurrentUserIsModerator проверяет, является ли текущий пользователь модератором
 // func CurrentUserIsModerator() bool {
 // 	// В реальности нужно доставать из БД, пока хардкод
 // 	return false
 // }
 
-// // GetCurrentUser возвращает фиксированного пользователя для демонстрации
+// GetCurrentUser возвращает фиксированного пользователя для демонстрации
 // func GetCurrentUser() ds.User {
 // 	return ds.User{
 // 		ID:          1,
@@ -22,7 +19,6 @@ import "lab3/internal/app/ds"
 // 		IsModerator: false,
 // 	}
 // }
-
 
 package auth
 
@@ -60,4 +56,16 @@ func (s *userService) GetUser() ds.User {
 
 func (s *userService) IsModerator() bool {
     return s.user.IsModerator
+}
+
+func CurrentUserID() uint {
+	return GetUserService().GetUser().ID
+}
+
+func CurrentUserIsModerator() bool {
+	return GetUserService().IsModerator()
+}
+
+func GetCurrentUser() ds.User {
+	return GetUserService().GetUser()
 }
