@@ -45,3 +45,7 @@ func New(settings *RepositorySettings) (*Repository, error) {
 		minio_bucket_name: settings.MinioBucketName,
 	}, nil
 }
+
+func (r *Repository) DB() *gorm.DB {
+    return r.db
+}

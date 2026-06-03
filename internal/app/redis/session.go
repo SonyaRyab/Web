@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"time"
-
 	"lab4/internal/app/role"
 )
 
@@ -26,11 +25,11 @@ func (c *Client) SaveSession(ctx context.Context, sessionID string, sess *Sessio
 	if err != nil {
 		return err
 	}
-	return c.client.Set(ctx, getSessionKey(sessionID), data, ttl).Err()
+	return c.rdb.Set(ctx, getSessionKey(sessionID), data, ttl).Err()
 }
 
 func (c *Client) GetSession(ctx context.Context, sessionID string) (*Session, error) {
-	val, err := c.client.Get(ctx, getSessionKey(sessionID)).Result()
+	val, err := c.rdb.Get(ctx, getSessionKey(sessionID)).Result()
 	if err != nil {
 		return nil, err
 	}
@@ -44,5 +43,5 @@ func (c *Client) GetSession(ctx context.Context, sessionID string) (*Session, er
 }
 
 func (c *Client) DeleteSession(ctx context.Context, sessionID string) error {
-	return c.client.Del(ctx, getSessionKey(sessionID)).Err()
+	return c.rdb.Del(ctx, getSessionKey(sessionID)).Err()
 }

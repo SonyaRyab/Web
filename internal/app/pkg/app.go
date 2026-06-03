@@ -4,7 +4,6 @@ import (
 	"context"
 	"log"
 	"os"
-
 	"lab4/internal/app/config"
 	"lab4/internal/app/dsn"
 	"lab4/internal/app/redis"
@@ -15,6 +14,7 @@ type Application struct {
 	config *config.Config
 	repo   *repository.Repository
 	redis  *redis.Client
+	feedRepo *repository.FeedRepository
 }
 
 func New(ctx context.Context) (*Application, error) {
@@ -38,11 +38,13 @@ func New(ctx context.Context) (*Application, error) {
 	if err != nil {
 		return nil, err
 	}
+	feedRepo := repository.NewFeedRepository(repo.DB(), redisClient.Raw())
 
 	return &Application{
 		config: cfg,
 		repo:   repo,
 		redis: redisClient,
+		feedRepo: feedRepo,
 	}, nil
 }
 

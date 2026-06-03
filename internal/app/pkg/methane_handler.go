@@ -306,3 +306,30 @@ func (a *Application) CompleteMethane(gCtx *gin.Context) {
 
     gCtx.JSON(http.StatusOK, gin.H{"ok": true})
 }
+
+func (a *Application) GetMethanesPagedHandler(c *gin.Context) {
+    page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+    limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
+
+    if page < 1 {
+        page = 1
+    }
+    if limit <= 0 {
+        limit = 10
+    }
+
+    offset := (page - 1) * limit
+
+    entities, total, err := a.repo.GetMethanesPaged(limit, offset)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{
+        "total": total,
+        "page":  page,
+        "limit": limit,
+        "data":  entities,
+    })
+}

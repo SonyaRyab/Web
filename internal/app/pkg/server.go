@@ -4,16 +4,12 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-
 	docs "lab4/docs"
-
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
-
 	"time"
 	"github.com/gin-contrib/cors"
-	
 )
 
 func (a *Application) StartServer() {
@@ -23,15 +19,30 @@ func (a *Application) StartServer() {
 
 	r.Use(cors.New(cors.Config{
 		AllowOrigins: []string{
+			"http://localhost:3000",
+			"https://localhost:3000",
 			"http://localhost:5173",
+			"https://localhost:5173",
 			"http://127.0.0.1:5173",
+			"https://127.0.0.1:5173",
 			"http://localhost:4173",
+			"https://localhost:4173",
 			"http://127.0.0.1:4173",
+			"https://127.0.0.1:4173",
+			"http://tauri.localhost",
+			"https://tauri.localhost",
 			"https://sonyaryab.github.io",
 		},
 		AllowMethods: []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
-		AllowHeaders: []string{"Origin", "Content-Type", "Authorization"},
-		ExposeHeaders: []string{"Content-Length"},
+		AllowHeaders: []string{
+			"Origin",
+			"Content-Type",
+			"Content-Length",
+			"Accept",
+			"Authorization",
+			"X-Requested-With",
+		},
+		ExposeHeaders: []string{"Content-Length", "Content-Type"},
 		AllowCredentials: true,
 		MaxAge: 12 * time.Hour,
 	}))
@@ -66,6 +77,7 @@ func (a *Application) StartServer() {
 	api := r.Group("/api")
 	{
 		api.GET("/reagents", a.GetReagentsPublic)
+		api.GET("/reagents/:id", a.GetReagentByIDPublic)
 	}
 
 	user := r.Group("/api")
@@ -82,12 +94,15 @@ func (a *Application) StartServer() {
 		user.POST("/methanes/:id/reagents", a.AddReagentToDraft)
 		user.PUT("/methanes/:id/reagents/:reagent_id", a.UpdateReagentQuantity)
 		user.DELETE("/methanes/:id/reagents/:reagent_id", a.RemoveReagentFromDraft)
+
+		user.GET("/feed", a.GetFeed)
 	}
 
 	admin := r.Group("/api")
 	admin.Use(a.WithJWTAuth())
 	{
 		admin.PUT("/methanes/:id/complete", a.RequireModerator(), a.CompleteMethane)
+		admin.GET("/methanes/all", a.RequireModerator(), a.GetMethanesPagedHandler)
 	}
 
 	addr := a.config.ServiceHost + ":" + strconv.Itoa(a.config.ServicePort)
