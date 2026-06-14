@@ -13,7 +13,7 @@ func (h *Handler) AddReagentToMethaneAPI(ctx *gin.Context) {
 
 	var input struct {
 		ReagentID uint    `json:"reagent_id" binding:"required"`
-		Quantity  float64 `json:"quantity" binding:"required"`
+		Volume  float64 `json:"volume" binding:"required"`
 		OrderNum  int     `json:"order_num"`
 	}
 
@@ -35,7 +35,7 @@ func (h *Handler) AddReagentToMethaneAPI(ctx *gin.Context) {
 		return
 	}
 
-	if err := h.Repository.AddReagentToMethane(uint(methaneID), input.ReagentID, input.Quantity, input.OrderNum); err != nil {
+	if err := h.Repository.AddReagentToMethane(uint(methaneID), input.ReagentID, input.Volume, input.OrderNum); err != nil {
 		h.errorHandler(ctx, http.StatusInternalServerError, err)
 		return
 	}
@@ -51,7 +51,7 @@ func (h *Handler) UpdateMethaneReagentAPI(ctx *gin.Context) {
 	reagentID, _ := strconv.Atoi(ctx.Param("reagent_id"))
 
 	var input struct {
-		Quantity *float64 `json:"quantity"`
+		Volume *float64 `json:"volume"`
 		OrderNum *int     `json:"order_num"`
 	}
 
@@ -60,7 +60,7 @@ func (h *Handler) UpdateMethaneReagentAPI(ctx *gin.Context) {
 		return
 	}
 
-	if err := h.Repository.UpdateMethaneReagent(uint(methaneID), uint(reagentID), input.Quantity, input.OrderNum); err != nil {
+	if err := h.Repository.UpdateMethaneReagent(uint(methaneID), uint(reagentID), input.Volume, input.OrderNum); err != nil {
 		h.errorHandler(ctx, http.StatusInternalServerError, err)
 		return
 	}

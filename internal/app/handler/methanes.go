@@ -200,7 +200,7 @@ func (h *Handler) FormMethaneAPI(ctx *gin.Context) {
 	var totalMass float64
 	reagents, _ := h.Repository.GetMethaneReagents(uint(id))
 	for _, r := range reagents {
-		totalMass += r.Quantity
+		totalMass += r.Volume
 	}
 
 	// Формула выхода метана (упрощённая)

@@ -38,7 +38,7 @@
             <div class="header-cell header-name">Название</div>
             <div class="header-cell header-formula">Формула</div>
             <div class="header-cell header-molar">Молярная масса</div>
-            <div class="header-cell header-quantity">Количество</div>
+            <div class="header-cell header-volume">Количество</div>
         </div>
     </div>
 
@@ -57,8 +57,8 @@
             <div class="data-cell cell-molar">
                 <span class="reagent-molar">{{ .Reagent.MolarMass }} г/моль</span>
             </div>
-            <div class="data-cell cell-quantity">
-                <span class="reagent-quantity">{{ .Quantity }} г</span>
+            <div class="data-cell cell-volume">
+                <span class="reagent-volume">{{ .Volume }} г</span>
             </div>
         </div>
         {{ end }}
