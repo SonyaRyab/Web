@@ -53,11 +53,11 @@ func (r *Repository) DeleteReagent(id uint) error {
 }
 
 // UploadReagentFiles загружает изображение и видео в MinIO
-func (r *Repository) UploadReagentFiles(reagentID uint, imgHeader, videoHeader *multipart.FileHeader) (imgURL, videoURL string, err error) {
+func (r *Repository) UploadReagentFiles(reagent_id uint, imgHeader, videoHeader *multipart.FileHeader) (imgURL, videoURL string, err error) {
 	ctx := context.Background()
 
 	// Генерируем имена файлов на латинице
-	baseName := fmt.Sprintf("reagent_%d", reagentID)
+	baseName := fmt.Sprintf("reagent_%d", reagent_id)
 
 	// Загрузка изображения
 	if imgHeader != nil {

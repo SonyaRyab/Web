@@ -5,10 +5,10 @@ import (
 )
 
 // AddReagentToMethane добавляет реагент в заявку (создаёт заявку если нужно)
-func (r *Repository) AddReagentToMethane(methaneID, reagentID uint, volume float64, orderNum int) error {
+func (r *Repository) AddReagentToMethane(methaneID, reagent_id uint, volume float64, orderNum int) error {
 	// Проверяем существование связи
 	var existing ds.MethaneReagent
-	err := r.db.Where("methane_id = ? AND reagent_id = ?", methaneID, reagentID).First(&existing).Error
+	err := r.db.Where("methane_id = ? AND reagent_id = ?", methaneID, reagent_id).First(&existing).Error
 
 	if err == nil {
 		// Обновляем количество если уже есть
@@ -19,7 +19,7 @@ func (r *Repository) AddReagentToMethane(methaneID, reagentID uint, volume float
 	// Создаём новую связь - простая структура без связей
 	mr := ds.MethaneReagent{
 		MethaneID: methaneID,
-		ReagentID: reagentID,
+		Reagent_id: reagent_id,
 		Volume:  volume,
 	}
 
@@ -27,7 +27,7 @@ func (r *Repository) AddReagentToMethane(methaneID, reagentID uint, volume float
 }
 
 // UpdateMethaneReagent изменяет количество/порядок реагента в заявке
-func (r *Repository) UpdateMethaneReagent(methaneID, reagentID uint, volume *float64, orderNum *int) error {
+func (r *Repository) UpdateMethaneReagent(methaneID, reagent_id uint, volume *float64, orderNum *int) error {
 	updates := map[string]interface{}{}
 	if volume != nil {
 		updates["volume"] = *volume
@@ -37,13 +37,13 @@ func (r *Repository) UpdateMethaneReagent(methaneID, reagentID uint, volume *flo
 	}
 
 	return r.db.Model(&ds.MethaneReagent{}).
-		Where("methane_id = ? AND reagent_id = ?", methaneID, reagentID).
+		Where("methane_id = ? AND reagent_id = ?", methaneID, reagent_id).
 		Updates(updates).Error
 }
 
 // RemoveReagentFromMethane удаляет реагент из заявки
-func (r *Repository) RemoveReagentFromMethane(methaneID, reagentID uint) error {
-	return r.db.Where("methane_id = ? AND reagent_id = ?", methaneID, reagentID).
+func (r *Repository) RemoveReagentFromMethane(methaneID, reagent_id uint) error {
+	return r.db.Where("methane_id = ? AND reagent_id = ?", methaneID, reagent_id).
 		Delete(&ds.MethaneReagent{}).Error
 }
 
@@ -79,16 +79,16 @@ func (r *Repository) GetMethaneReagentsWithDetails(methaneID uint) ([]map[string
 	for rows.Next() {
 		var id uint
 		var volume float64
-		var reagentID uint
+		var reagent_id uint
 		var name, formula, img string
 		var molarMass float64
 
-		rows.Scan(&id, &volume, &reagentID, &name, &formula, &img, &molarMass)
+		rows.Scan(&id, &volume, &reagent_id, &name, &formula, &img, &molarMass)
 
 		results = append(results, map[string]interface{}{
 			"id":         id,
 			"volume":   volume,
-			"reagent_id": reagentID,
+			"reagent_id": reagent_id,
 			"name":       name,
 			"formula":    formula,
 			"img":        img,

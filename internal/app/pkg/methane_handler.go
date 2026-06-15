@@ -20,7 +20,7 @@ type CompleteMethaneReq struct {
 }
 
 type AddReagentReq struct {
-    ReagentID uint `json:"reagentid" binding:"required"`
+    Reagent_id uint `json:"reagent_id" binding:"required"`
     Volume  int  `json:"volume" binding:"required,min=1"`
 }
 
@@ -57,7 +57,7 @@ func (a *Application) AddReagentToDraft(c *gin.Context) {
         return
     }
 
-    if err := a.repo.AddReagentToDraft(uint(id64), userID, req.ReagentID, req.Volume); err != nil {
+    if err := a.repo.AddReagentToDraft(uint(id64), userID, req.Reagent_id, req.Volume); err != nil {
         c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
         return
     }
@@ -81,7 +81,7 @@ func (a Application) UpdateReagentVolume(c *gin.Context) {
 		return
 	}
 
-	reagentID64, err := strconv.ParseUint(c.Param("reagentid"), 10, 64)
+	reagentID64, err := strconv.ParseUint(c.Param("reagent_id"), 10, 64)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid reagent id"})
 		return
