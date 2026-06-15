@@ -21,11 +21,11 @@ type CompleteMethaneReq struct {
 
 type AddReagentReq struct {
     ReagentID uint `json:"reagentid" binding:"required"`
-    Quantity  int  `json:"quantity" binding:"required,min=1"`
+    Volume  int  `json:"volume" binding:"required,min=1"`
 }
 
-type UpdateReagentQuantityReq struct {
-    Quantity int `json:"quantity" binding:"required,min=1"`
+type UpdateReagentVolumeReq struct {
+    Volume int `json:"volume" binding:"required,min=1"`
 }
 
 // AddReagentToDraft godoc
@@ -57,7 +57,7 @@ func (a *Application) AddReagentToDraft(c *gin.Context) {
         return
     }
 
-    if err := a.repo.AddReagentToDraft(uint(id64), userID, req.ReagentID, req.Quantity); err != nil {
+    if err := a.repo.AddReagentToDraft(uint(id64), userID, req.ReagentID, req.Volume); err != nil {
         c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
         return
     }
@@ -65,16 +65,16 @@ func (a *Application) AddReagentToDraft(c *gin.Context) {
     c.JSON(http.StatusOK, gin.H{"ok": true})
 }
 
-// UpdateReagentQuantity godoc
+// UpdateReagentVolume godoc
 // @Summary Обновить количество реагента в заявке
 // @Tags methanes
 // @Security BearerAuth
 // @Param id path int true "Methane ID"
 // @Param reagent_id path int true "Reagent ID"
-// @Param input body AddReagentReq true "Quantity"
+// @Param input body AddReagentReq true "Volume"
 // @Success 200 {object} map[string]interface{}
 // @Router /api/methanes/{id}/reagents/{reagent_id} [put]
-func (a Application) UpdateReagentQuantity(c *gin.Context) {
+func (a Application) UpdateReagentVolume(c *gin.Context) {
 	id64, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid methane id"})
@@ -94,13 +94,13 @@ func (a Application) UpdateReagentQuantity(c *gin.Context) {
 	}
 	userID := userIDAny.(uint)
 
-	var req UpdateReagentQuantityReq
+	var req UpdateReagentVolumeReq
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid json: " + err.Error()})
 		return
 	}
 
-	if err := a.repo.UpdateReagentQuantity(uint(id64), userID, uint(reagentID64), req.Quantity); err != nil {
+	if err := a.repo.UpdateReagentVolume(uint(id64), userID, uint(reagentID64), req.Volume); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}

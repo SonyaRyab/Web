@@ -162,7 +162,7 @@ func (r Repository) CompleteMethane(id uint, currentUserID uint, status string) 
 		}).Error
 }
 
-// func (r Repository) AddReagentToDraft(methaneID uint, userID uint, reagentID uint, quantity int) error {
+// func (r Repository) AddReagentToDraft(methaneID uint, userID uint, reagentID uint, volume int) error {
 //     var methane ds.Methane
 //     err := r.db.Where("id = ?", methaneID).First(&methane).Error
 //     if err != nil {
@@ -188,11 +188,11 @@ func (r Repository) CompleteMethane(id uint, currentUserID uint, status string) 
 //     var existing ds.MethaneReagent
 //     err = r.db.Where("methane_id = ? AND reagent_id = ?", methaneID, reagentID).First(&existing).Error
 //     if existing != nil {
-// 		existing.Quantity += float64(quantity)
+// 		existing.Volume += float64(volume)
 // 	} else {
 // 		draft.Reagents = append(draft.Reagents, ds.MethaneReagent{
 // 			ReagentID: reagentID,
-// 			Quantity:  float64(quantity),
+// 			Volume:  float64(volume),
 // 		})
 // 	}
 
@@ -200,13 +200,13 @@ func (r Repository) CompleteMethane(id uint, currentUserID uint, status string) 
 //     methaneReagent := ds.MethaneReagent{
 //         MethaneID:  methaneID,
 //         ReagentID:  reagentID,
-//         Quantity:   quantity,
+//         Volume:   volume,
 //     }
 
 //     return r.db.Create(&methaneReagent).Error
 // }
 
-func (r Repository) AddReagentToDraft(methaneID uint, userID uint, reagentID uint, quantity int) error {
+func (r Repository) AddReagentToDraft(methaneID uint, userID uint, reagentID uint, volume int) error {
     var methane ds.Methane
     err := r.db.Where("id = ?", methaneID).First(&methane).Error
     if err != nil {
@@ -236,20 +236,20 @@ func (r Repository) AddReagentToDraft(methaneID uint, userID uint, reagentID uin
         // Нашли — увеличиваем количество
         return r.db.Model(&ds.MethaneReagent{}).
             Where("methane_id = ? AND reagent_id = ?", methaneID, reagentID).
-            Update("quantity", existing.Quantity + float64(quantity)).Error
+            Update("volume", existing.Volume + float64(volume)).Error
     }
 
     // Не нашли — создаём новую запись
     methaneReagent := ds.MethaneReagent{
         MethaneID: methaneID,
         ReagentID: reagentID,
-        Quantity:  float64(quantity),
+        Volume:  float64(volume),
     }
 
     return r.db.Create(&methaneReagent).Error
 }
 
-func (r Repository) UpdateReagentQuantity(methaneID uint, userID uint, reagentID uint, quantity int) error {
+func (r Repository) UpdateReagentVolume(methaneID uint, userID uint, reagentID uint, volume int) error {
     var methane ds.Methane
     err := r.db.Where("id = ?", methaneID).First(&methane).Error
     if err != nil {
@@ -266,7 +266,7 @@ func (r Repository) UpdateReagentQuantity(methaneID uint, userID uint, reagentID
 
     return r.db.Model(&ds.MethaneReagent{}).
         Where("methane_id = ? AND reagent_id = ?", methaneID, reagentID).
-        Update("quantity", quantity).Error
+        Update("volume", volume).Error
 }
 
 func (r Repository) RemoveReagentFromDraft(methaneID uint, userID uint, reagentID uint) error {

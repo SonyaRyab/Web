@@ -5,14 +5,14 @@ import (
 )
 
 // AddReagentToMethane добавляет реагент в заявку (создаёт заявку если нужно)
-func (r *Repository) AddReagentToMethane(methaneID, reagentID uint, quantity float64, orderNum int) error {
+func (r *Repository) AddReagentToMethane(methaneID, reagentID uint, volume float64, orderNum int) error {
 	// Проверяем существование связи
 	var existing ds.MethaneReagent
 	err := r.db.Where("methane_id = ? AND reagent_id = ?", methaneID, reagentID).First(&existing).Error
 
 	if err == nil {
 		// Обновляем количество если уже есть
-		existing.Quantity += quantity
+		existing.Volume += volume
 		return r.db.Save(&existing).Error
 	}
 
@@ -20,17 +20,17 @@ func (r *Repository) AddReagentToMethane(methaneID, reagentID uint, quantity flo
 	mr := ds.MethaneReagent{
 		MethaneID: methaneID,
 		ReagentID: reagentID,
-		Quantity:  quantity,
+		Volume:  volume,
 	}
 
 	return r.db.Create(&mr).Error
 }
 
 // UpdateMethaneReagent изменяет количество/порядок реагента в заявке
-func (r *Repository) UpdateMethaneReagent(methaneID, reagentID uint, quantity *float64, orderNum *int) error {
+func (r *Repository) UpdateMethaneReagent(methaneID, reagentID uint, volume *float64, orderNum *int) error {
 	updates := map[string]interface{}{}
-	if quantity != nil {
-		updates["quantity"] = *quantity
+	if volume != nil {
+		updates["volume"] = *volume
 	}
 	if orderNum != nil {
 		updates["order_num"] = *orderNum
@@ -65,7 +65,7 @@ func (r *Repository) GetMethaneReagentsWithDetails(methaneID uint) ([]map[string
 	var results []map[string]interface{}
 
 	rows, err := r.db.Raw(`
-		SELECT mr.id, mr.quantity, r.id as reagent_id, r.name, r.formula, r.img, r.molar_mass
+		SELECT mr.id, mr.volume, r.id as reagent_id, r.name, r.formula, r.img, r.molar_mass
 		FROM methane_reagents mr
 		JOIN reagents r ON mr.reagent_id = r.id
 		WHERE mr.methane_id = ?
@@ -78,16 +78,16 @@ func (r *Repository) GetMethaneReagentsWithDetails(methaneID uint) ([]map[string
 
 	for rows.Next() {
 		var id uint
-		var quantity float64
+		var volume float64
 		var reagentID uint
 		var name, formula, img string
 		var molarMass float64
 
-		rows.Scan(&id, &quantity, &reagentID, &name, &formula, &img, &molarMass)
+		rows.Scan(&id, &volume, &reagentID, &name, &formula, &img, &molarMass)
 
 		results = append(results, map[string]interface{}{
 			"id":         id,
-			"quantity":   quantity,
+			"volume":   volume,
 			"reagent_id": reagentID,
 			"name":       name,
 			"formula":    formula,

@@ -92,7 +92,7 @@ func (a *Application) StartServer() {
 		user.PUT("/methanes/:id/form", a.FormMethane)
 
 		user.POST("/methanes/:id/reagents", a.AddReagentToDraft)
-		user.PUT("/methanes/:id/reagents/:reagent_id", a.UpdateReagentQuantity)
+		user.PUT("/methanes/:id/reagents/:reagent_id", a.UpdateReagentVolume)
 		user.DELETE("/methanes/:id/reagents/:reagent_id", a.RemoveReagentFromDraft)
 
 		user.GET("/feed", a.GetFeed)

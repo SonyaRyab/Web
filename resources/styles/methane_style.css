@@ -200,7 +200,7 @@ header {
     text-align: center;
 }
 
-.header-quantity {
+.header-volume {
     text-align: center;
 }
 
@@ -281,11 +281,11 @@ header {
     color: #666;
 }
 
-.cell-quantity {
+.cell-volume {
     text-align: center;
 }
 
-.reagent-quantity {
+.reagent-volume {
     font-family: 'Russo One';
     font-size: 16px;
     color: #000;
