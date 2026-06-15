@@ -23,7 +23,8 @@ func (r *Repository) AddReagentToMethane(methaneID, reagent_id uint, volume floa
 		Volume:  volume,
 	}
 
-	return r.db.Create(&mr).Error
+	// return r.db.Create(&mr).Error
+	return r.db.Omit("Reagent").Create(&mr).Error
 }
 
 // UpdateMethaneReagent изменяет количество/порядок реагента в заявке
