@@ -1,38 +1,45 @@
 package app
 
 import (
-	"context"
-	"fmt"
-	"math/rand"
 	"net/http"
-	"time"
+    "context"
+    "time"
+    "fmt"
+    "math/rand"
 	"github.com/gin-gonic/gin"
 )
 
 func (a Application) GetFeed(c *gin.Context) {
 	userIDAny, ok := c.Get("userid")
 	if !ok {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
 		return
 	}
 
 	userID := userIDAny.(uint)
 
 	ids, err := a.feedRepo.GetFeedForUser(c.Request.Context(), userID)
-	if err != nil || len(ids) == 0 {
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	if len(ids) == 0 {
 		if err := a.feedRepo.GenerateFeedForUser(c.Request.Context(), userID); err != nil {
-			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
 
 		ids, err = a.feedRepo.GetFeedForUser(c.Request.Context(), userID)
 		if err != nil {
-			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
 	}
 
-	c.JSON(http.StatusOK, gin.H{"ids": ids})
+	c.JSON(http.StatusOK, gin.H{
+		"ids": ids,
+	})
 }
 
 func (a Application) BuildUserFeed(userID int64) error {
