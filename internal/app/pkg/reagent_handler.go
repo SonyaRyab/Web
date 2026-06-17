@@ -7,6 +7,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func parsePositiveInt(value string, def int) int {
+	n, err := strconv.Atoi(value)
+	if err != nil || n < 1 {
+		return def
+	}
+	return n
+}
+
 // GetReagentsPublic godoc
 // @Summary Список реагентов
 // @Description Публичный метод чтения данных
@@ -16,16 +24,33 @@ import (
 // @Success 200 {array} ds.Reagent
 // @Failure 500 {object} map[string]interface{}
 // @Router /api/reagents [get]
-func (a *Application) GetReagentsPublic(gCtx *gin.Context) {
-	search := gCtx.Query("search")
+func (a Application) GetReagentsPublic(c *gin.Context) {
+	search := c.Query("search")
+	page := parsePositiveInt(c.DefaultQuery("page", "1"), 1)
+	limit := parsePositiveInt(c.DefaultQuery("limit", "24"), 24)
 
-	items, err := a.repo.GetReagents(search)
+	if limit > 100 {
+		limit = 100
+	}
+
+	items, total, err := a.repo.GetReagentsPaged(search, page, limit)
 	if err != nil {
-		gCtx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	gCtx.JSON(http.StatusOK, items)
+	totalPages := 1
+	if total > 0 {
+		totalPages = int((total + int64(limit) - 1) / int64(limit))
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"items":      items,
+		"total":      total,
+		"page":       page,
+		"limit":      limit,
+		"totalPages": totalPages,
+	})
 }
 
 // GetReagentByIDPublic godoc
@@ -38,19 +63,18 @@ func (a *Application) GetReagentsPublic(gCtx *gin.Context) {
 // @Failure 400 {object} map[string]interface{}
 // @Failure 404 {object} map[string]interface{}
 // @Router /api/reagents/{id} [get]
-func (a *Application) GetReagentByIDPublic(gCtx *gin.Context) {
-	idStr := gCtx.Param("id")
-	id64, err := strconv.ParseUint(idStr, 10, 64)
+func (a Application) GetReagentByIDPublic(c *gin.Context) {
+	id64, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		gCtx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "invalid reagent id"})
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "invalid reagent id"})
 		return
 	}
 
 	item, err := a.repo.GetReagentByID(uint(id64))
 	if err != nil {
-		gCtx.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "reagent not found"})
+		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "reagent not found"})
 		return
 	}
 
-	gCtx.JSON(http.StatusOK, item)
+	c.JSON(http.StatusOK, item)
 }

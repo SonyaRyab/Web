@@ -84,17 +84,13 @@ func (a *Application) StartServer() {
 	user.Use(a.WithJWTAuth())
 	{
 		user.GET("/methanes", a.GetMethanes)
-
 		user.POST("/methanes/draft", a.CreateDraftMethane)
 		user.GET("/methanes/draft", a.GetDraftMethane)
-
 		user.GET("/methanes/:id", a.GetMethaneByID)
 		user.PUT("/methanes/:id/form", a.FormMethane)
-
 		user.POST("/methanes/:id/reagents", a.AddReagentToDraft)
 		user.PUT("/methanes/:id/reagents/:reagent_id", a.UpdateReagentVolume)
 		user.DELETE("/methanes/:id/reagents/:reagent_id", a.RemoveReagentFromDraft)
-
 		user.GET("/feed", a.GetFeed)
 	}
 

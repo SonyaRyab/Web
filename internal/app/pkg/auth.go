@@ -57,44 +57,45 @@ func checkPassword(hash string, password string) bool {
 // @Success 200 {object} registerResp
 // @Failure 400 {object} map[string]interface{}
 // @Router /auth/register [post]
-func (a Application) Register(gCtx *gin.Context) {
+func (a Application) Register(c *gin.Context) {
 	var req registerReq
-	if err := json.NewDecoder(gCtx.Request.Body).Decode(&req); err != nil {
-		gCtx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "invalid json"})
+
+	if err := json.NewDecoder(c.Request.Body).Decode(&req); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "invalid json"})
 		return
 	}
 
 	if req.Login == "" || req.Username == "" || req.Pass == "" {
-		gCtx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "all fields required"})
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "all fields required"})
 		return
 	}
 
-	_, err := a.repo.GetUserByLogin(req.Login)
-	if err == nil {
-		gCtx.AbortWithStatusJSON(http.StatusConflict, gin.H{"error": "login already exists"})
+	if _, err := a.repo.GetUserByLogin(req.Login); err == nil {
+		c.AbortWithStatusJSON(http.StatusConflict, gin.H{"error": "login already exists"})
 		return
 	}
 
 	passHash, err := hashPassword(req.Pass)
 	if err != nil {
-		gCtx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "cannot hash password"})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "cannot hash password"})
 		return
 	}
 
-	err = a.repo.Register(&ds.User{
-	UUID:     uuid.New(),
-	Login:    req.Login,
-	Username: req.Username,
-	Email:    req.Login + "@test.ru",
-	Role:     role.Admin,
-	PassHash: passHash,
-	})
-	if err != nil {
-		gCtx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	user := &ds.User{
+		UUID:     uuid.New(),
+		Login:    req.Login,
+		Username: req.Username,
+		Email:    req.Login + "@test.ru",
+		Role:     role.Admin,
+		PassHash: passHash,
+	}
+
+	if err := a.repo.Register(user); err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	gCtx.JSON(http.StatusOK, registerResp{Ok: true})
+	c.JSON(http.StatusOK, registerResp{Ok: true})
 }
 
 // Login godoc
@@ -107,49 +108,44 @@ func (a Application) Register(gCtx *gin.Context) {
 // @Success 200 {object} loginResp
 // @Failure 401 {object} map[string]interface{}
 // @Router /auth/login [post]
-func (a Application) Login(gCtx *gin.Context) {
+func (a Application) Login(c *gin.Context) {
 	var req loginReq
-	if err := json.NewDecoder(gCtx.Request.Body).Decode(&req); err != nil {
-		gCtx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "invalid json"})
+
+	if err := json.NewDecoder(c.Request.Body).Decode(&req); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "invalid json"})
 		return
 	}
 
 	user, err := a.repo.GetUserByLogin(req.Login)
-	if err != nil {
-		gCtx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
-		return
-	}
-
-	if !checkPassword(user.PassHash, req.Password) {
-		gCtx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
+	if err != nil || !checkPassword(user.PassHash, req.Password) {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
 		return
 	}
 
 	now := time.Now()
 	expiresAt := now.Add(a.config.JWT.ExpiresIn).Unix()
 
-	token := jwt.NewWithClaims(
-		jwt.GetSigningMethod(a.config.JWT.SigningMethod),
-		ds.JWTClaims{
-			StandardClaims: jwt.StandardClaims{
-				ExpiresAt: expiresAt,
-				IssuedAt:  now.Unix(),
-				Issuer:    "lab4-backend",
-			},
-			UserID:   user.ID,
-			UserUUID: user.UUID,
-			Login:    user.Login,
-			Role:     user.Role,
+	token := jwt.NewWithClaims(jwt.GetSigningMethod(a.config.JWT.SigningMethod), ds.JWTClaims{
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: expiresAt,
+			IssuedAt:  now.Unix(),
+			Issuer:    "lab4-backend",
 		},
-	)
+		UserID:   user.ID,
+		UserUUID: user.UUID,
+		Login:    user.Login,
+		Role:     user.Role,
+	})
 
 	tokenString, err := token.SignedString([]byte(a.config.JWT.Token))
 	if err != nil {
-		gCtx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "cannot create token"})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "cannot create token"})
 		return
 	}
 
-	gCtx.JSON(http.StatusOK, loginResp{
+	_ = a.feedRepo.GenerateFeedForUser(c.Request.Context(), user.ID)
+
+	c.JSON(http.StatusOK, loginResp{
 		Login:       user.Login,
 		Username:    user.Username,
 		ExpiresIn:   int64(a.config.JWT.ExpiresIn.Seconds()),
@@ -167,37 +163,33 @@ func (a Application) Login(gCtx *gin.Context) {
 // @Success 200 {object} map[string]interface{}
 // @Failure 401 {object} map[string]interface{}
 // @Router /auth/logout [post]
-func (a Application) Logout(gCtx *gin.Context) {
-	jwtStr := gCtx.GetHeader("Authorization")
+func (a Application) Logout(c *gin.Context) {
+	jwtStr := c.GetHeader("Authorization")
 	const prefix = "Bearer "
 
 	if !strings.HasPrefix(jwtStr, prefix) {
-		gCtx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "invalid auth header"})
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "invalid auth header"})
 		return
 	}
 
 	jwtStr = strings.TrimPrefix(jwtStr, prefix)
-
 	claims := &ds.JWTClaims{}
+
 	_, err := jwt.ParseWithClaims(jwtStr, claims, func(token *jwt.Token) (interface{}, error) {
 		return []byte(a.config.JWT.Token), nil
 	})
 	if err != nil {
-		gCtx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid token"})
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid token"})
 		return
 	}
 
-	expiration := time.Unix(claims.ExpiresAt, 0)
-	ttl := time.Until(expiration)
-	if ttl <= 0 {
-		gCtx.JSON(http.StatusOK, gin.H{"ok": true})
-		return
+	ttl := time.Until(time.Unix(claims.ExpiresAt, 0))
+	if ttl > 0 {
+		if err := a.redis.WriteJWTToBlacklist(c.Request.Context(), jwtStr, ttl); err != nil {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "cannot blacklist token"})
+			return
+		}
 	}
 
-	if err := a.redis.WriteJWTToBlacklist(gCtx.Request.Context(), jwtStr, ttl); err != nil {
-		gCtx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "cannot blacklist token"})
-		return
-	}
-
-	gCtx.JSON(http.StatusOK, gin.H{"ok": true})
+	c.JSON(http.StatusOK, gin.H{"ok": true})
 }

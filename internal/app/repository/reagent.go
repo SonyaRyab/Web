@@ -11,30 +11,88 @@ import (
 )
 
 // GetReagents получает список реагентов с фильтрацией
-func (r *Repository) GetReagents(search string) ([]ds.Reagent, error) {
+func (r Repository) GetReagents(search string) ([]ds.Reagent, error) {
 	var reagents []ds.Reagent
-	query := r.db.Where("is_deleted = ?", false)
 
+	query := r.db.Where("isdeleted = ?", false)
 	if search != "" {
-		query = query.Where("name ILIKE ? OR formula ILIKE ?", "%"+search+"%", "%"+search+"%")
+		like := "%" + search + "%"
+		query = query.Where("name ILIKE ? OR formula ILIKE ?", like, like)
 	}
 
-	err := query.Find(&reagents).Error
-	if err != nil {
-		return nil, err
+	err := query.Order("id asc").Find(&reagents).Error
+	return reagents, err
+}
+
+func (r Repository) GetReagentsPaged(search string, page int, limit int) ([]ds.Reagent, int64, error) {
+	if page < 1 {
+		page = 1
+	}
+	if limit < 1 {
+		limit = 24
+	}
+	if limit > 100 {
+		limit = 100
 	}
 
-	return reagents, nil
+	offset := (page - 1) * limit
+
+	var items []ds.Reagent
+	var total int64
+
+	query := r.db.Model(&ds.Reagent{}).Where("isdeleted = ?", false)
+	if search != "" {
+		like := "%" + search + "%"
+		query = query.Where("name ILIKE ? OR formula ILIKE ?", like, like)
+	}
+
+	if err := query.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	if err := query.Order("id asc").Offset(offset).Limit(limit).Find(&items).Error; err != nil {
+		return nil, 0, err
+	}
+
+	return items, total, nil
+}
+
+func (r Repository) GetAllReagentIDs() ([]uint, error) {
+	var ids []uint
+	err := r.db.Model(&ds.Reagent{}).Where("isdeleted = ?", false).Pluck("id", &ids).Error
+	return ids, err
 }
 
 // GetReagentByID получает один реагент по ID
 func (r *Repository) GetReagentByID(id uint) (ds.Reagent, error) {
 	var reagent ds.Reagent
-	err := r.db.Where("id = ? AND is_deleted = ?", id, false).First(&reagent).Error
-	if err != nil {
-		return ds.Reagent{}, err
+	err := r.db.Where("id = ? AND isdeleted = ?", id, false).First(&reagent).Error
+	return reagent, err
+}
+
+// UploadReagentFiles загружает изображение и видео в MinIO
+func (r Repository) UploadReagentFiles(reagentID uint, imgHeader, videoHeader *multipart.FileHeader) (string, string, error) {
+	ctx := context.Background()
+	baseName := fmt.Sprintf("reagent-%d", reagentID)
+
+	var imgURL, videoURL string
+	var err error
+
+	if imgHeader != nil {
+		imgURL, err = r.UploadFileToMinIO(ctx, baseName+"-img", imgHeader)
+		if err != nil {
+			return "", "", err
+		}
 	}
-	return reagent, nil
+
+	if videoHeader != nil {
+		videoURL, err = r.UploadFileToMinIO(ctx, baseName+"-video", videoHeader)
+		if err != nil {
+			return "", "", err
+		}
+	}
+
+	return imgURL, videoURL, nil
 }
 
 // AddReagent добавляет новый реагент
@@ -52,55 +110,22 @@ func (r *Repository) DeleteReagent(id uint) error {
 	return r.db.Model(&ds.Reagent{}).Where("id = ?", id).Update("is_deleted", true).Error
 }
 
-// UploadReagentFiles загружает изображение и видео в MinIO
-func (r *Repository) UploadReagentFiles(reagent_id uint, imgHeader, videoHeader *multipart.FileHeader) (imgURL, videoURL string, err error) {
-	ctx := context.Background()
-
-	// Генерируем имена файлов на латинице
-	baseName := fmt.Sprintf("reagent_%d", reagent_id)
-
-	// Загрузка изображения
-	if imgHeader != nil {
-		imgName := baseName + "_img"
-		imgURL, err = r.UploadFileToMinIO(ctx, imgName, imgHeader)
-		if err != nil {
-			return "", "", fmt.Errorf("ошибка загрузки изображения: %w", err)
-		}
-	}
-
-	// Загрузка видео
-	if videoHeader != nil {
-		videoName := baseName + "_video"
-		videoURL, err = r.UploadFileToMinIO(ctx, videoName, videoHeader)
-		if err != nil {
-			// Откат изображения если видео не загрузилось
-			if imgURL != "" {
-				r.minio.RemoveObject(ctx, r.minio_bucket_name, baseName+"_img", minio.RemoveObjectOptions{})
-			}
-			return "", "", fmt.Errorf("ошибка загрузки видео: %w", err)
-		}
-	}
-
-	return imgURL, videoURL, nil
-}
-
-func (r *Repository) UploadFileToMinIO(ctx context.Context, filename string, header *multipart.FileHeader) (string, error) {
+func (r Repository) UploadFileToMinIO(ctx context.Context, filename string, header *multipart.FileHeader) (string, error) {
 	file, err := header.Open()
 	if err != nil {
 		return "", err
 	}
 	defer file.Close()
 
-	// Определяем Content-Type
 	buffer := make([]byte, 512)
 	_, err = file.Read(buffer)
 	if err != nil {
 		return "", err
 	}
+
 	contentType := http.DetectContentType(buffer)
 
-	_, err = file.Seek(0, 0)
-	if err != nil {
+	if _, err := file.Seek(0, 0); err != nil {
 		return "", err
 	}
 
@@ -110,22 +135,21 @@ func (r *Repository) UploadFileToMinIO(ctx context.Context, filename string, hea
 		filename,
 		file,
 		header.Size,
-		minio.PutObjectOptions{
-			ContentType: contentType,
-		},
+		minio.PutObjectOptions{ContentType: contentType},
 	)
 	if err != nil {
 		return "", err
 	}
+
 	return fmt.Sprintf("http://%s/%s/%s", r.minio.EndpointURL().Host, r.minio_bucket_name, filename), nil
 }
 
-// DeleteFileFromMinIO удаляет файл из MinIO (ПУБЛИЧНЫЙ МЕТОД)
+// DeleteFileFromMinIO удаляет файл из MinIO 
 func (r *Repository) DeleteFileFromMinIO(filename string) error {
 	return r.minio.RemoveObject(context.Background(), r.minio_bucket_name, filename, minio.RemoveObjectOptions{})
 }
 
-// GetMinioBucketName возвращает имя бакета (ПУБЛИЧНЫЙ МЕТОД)
+// GetMinioBucketName возвращает имя бакета
 func (r *Repository) GetMinioBucketName() string {
 	return r.minio_bucket_name
 }

@@ -1,17 +1,14 @@
 package main
 
 import (
-	// импорты для подключения к БД и другие
 	"fmt"
     "log"
     "math/rand"
     "os"
     "time"
-
     "github.com/go-faker/faker/v4"
     "gorm.io/driver/postgres"
     "gorm.io/gorm"
-
     "lab4/internal/app/ds"
 )
 
@@ -36,6 +33,8 @@ func main(){
 	// чтобы rand работал нормально
 	rand.Seed(time.Now().UnixNano())
 
+	batch := make([]ds.Reagent, 0, 1000)
+
 	// заранее получаем пользователей из БД (user10, user11, user12)
 	var users []ds.User
 	if err := db.Where("login IN ?", []string{"user10", "user11", "user12"}).Find(&users).Error; err != nil {
@@ -47,6 +46,29 @@ func main(){
 
 	numEntries :=100000
 	
+	for i := 1; i <= total; i++ {
+		item := ds.Reagent{
+			Name:        fmt.Sprintf("Service %d", i),
+			Formula:     fmt.Sprintf("R-%06d", i),
+			Temperature: 20 + rand.Float64()*500,
+			Img:         "",
+			Video:       "videos/demo.mp4",
+			Description: faker.Sentence(),
+			MolarMass:   10 + rand.Float64()*200,
+			Price:       100 + rand.Float64()*10000,
+			IsDeleted:   false,
+		}
+
+		batch = append(batch, item)
+
+		if len(batch) == cap(batch) {
+			if err := db.Create(&batch).Error; err != nil {
+				log.Fatalf("batch insert failed: %v", err)
+			}
+			batch = batch[:0]
+		}
+	}
+
 	for i := 0; i < numEntries; i++ {
 			newEntry := ds.Methane{
 			Status: getRandomStatus(),

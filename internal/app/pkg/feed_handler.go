@@ -1,38 +1,45 @@
 package app
 
 import (
-    "net/http"
-
-    "github.com/gin-gonic/gin"
+	"context"
+	"fmt"
+	"math/rand"
+	"time"
 )
 
-type FeedResponse struct {
-    IDs []uint `json:"ids"`
-}
+func (a Application) BuildUserFeed(userID int64) error {
+	ids, err := a.repo.GetAllReagentIDs()
+	if err != nil {
+		return err
+	}
 
-func (a *Application) GetFeed(gCtx *gin.Context) {
-    userIDAny, ok := gCtx.Get("userid")
-    if !ok {
-        gCtx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
-        return
-    }
-    userID := userIDAny.(uint)
+	rand.Shuffle(len(ids), func(i, j int) {
+		ids[i], ids[j] = ids[j], ids[i]
+	})
 
-    ctx := gCtx.Request.Context()
+	if len(ids) > 100 {
+		ids = ids[:100]
+	}
 
-    // если ленты нет — генерируем
-    ids, err := a.feedRepo.GetFeedForUser(ctx, userID)
-    if err != nil || len(ids) == 0 {
-        if err := a.feedRepo.GenerateFeedForUser(ctx, userID); err != nil {
-            gCtx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-            return
-        }
-        ids, err = a.feedRepo.GetFeedForUser(ctx, userID)
-        if err != nil {
-            gCtx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-            return
-        }
+	key := fmt.Sprintf("feed:user:%d", userID)
+
+	if err := a.redis.Raw().Del(context.Background(), key).Err(); err != nil {
+        return err
     }
 
-    gCtx.JSON(http.StatusOK, FeedResponse{IDs: ids})
+	values := make([]interface{}, 0, len(ids))
+	for _, id := range ids {
+		values = append(values, id)
+	}
+
+	if len(values) > 0 {
+		if err := a.redis.Raw().RPush(context.Background(), key, values...).Err(); err != nil {
+            return err
+        }
+		if err := a.redis.Raw().Expire(context.Background(), key, 24*time.Hour).Err(); err != nil {
+            return err
+        }
+	}
+
+	return nil
 }

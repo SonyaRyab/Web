@@ -8,5 +8,14 @@ type Reagent struct {
 	Img         string  `gorm:"type:varchar(100)" json:"img"`
 	Video       string  `gorm:"type:varchar(100)" json:"video"`
 	Description string  `gorm:"type:varchar(200)" json:"description"`
+	MolarMass   float64 `gorm:"column:molarmass;type:decimal(10,2)" json:"molarmass"`
 	IsDeleted   bool    `gorm:"column:is_deleted;default:false" json:"-"`
+}
+
+type ReagentsPage struct {
+	Items      []Reagent `json:"items"`
+	Total      int64     `json:"total"`
+	Page       int       `json:"page"`
+	Limit      int       `json:"limit"`
+	TotalPages int       `json:"totalPages"`
 }
