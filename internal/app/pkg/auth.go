@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strings"
 	"time"
+	"log"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
@@ -108,44 +109,53 @@ func (a Application) Register(c *gin.Context) {
 // @Success 200 {object} loginResp
 // @Failure 401 {object} map[string]interface{}
 // @Router /auth/login [post]
-func (a Application) Login(c *gin.Context) {
+func (a Application) Login(gCtx *gin.Context) {
 	var req loginReq
-
-	if err := json.NewDecoder(c.Request.Body).Decode(&req); err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "invalid json"})
+	if err := json.NewDecoder(gCtx.Request.Body).Decode(&req); err != nil {
+		gCtx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "invalid json"})
 		return
 	}
 
 	user, err := a.repo.GetUserByLogin(req.Login)
-	if err != nil || !checkPassword(user.PassHash, req.Password) {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
+	if err != nil {
+		gCtx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
+		return
+	}
+
+	if !checkPassword(user.PassHash, req.Password) {
+		gCtx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
 		return
 	}
 
 	now := time.Now()
 	expiresAt := now.Add(a.config.JWT.ExpiresIn).Unix()
 
-	token := jwt.NewWithClaims(jwt.GetSigningMethod(a.config.JWT.SigningMethod), ds.JWTClaims{
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: expiresAt,
-			IssuedAt:  now.Unix(),
-			Issuer:    "lab4-backend",
+	token := jwt.NewWithClaims(
+		jwt.GetSigningMethod(a.config.JWT.SigningMethod),
+		ds.JWTClaims{
+			StandardClaims: jwt.StandardClaims{
+				ExpiresAt: expiresAt,
+				IssuedAt:  now.Unix(),
+				Issuer:    "lab4-backend",
+			},
+			UserID:   user.ID,
+			UserUUID: user.UUID,
+			Login:    user.Login,
+			Role:     user.Role,
 		},
-		UserID:   user.ID,
-		UserUUID: user.UUID,
-		Login:    user.Login,
-		Role:     user.Role,
-	})
+	)
 
 	tokenString, err := token.SignedString([]byte(a.config.JWT.Token))
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "cannot create token"})
+		gCtx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "cannot create token"})
 		return
 	}
 
-	_ = a.feedRepo.GenerateFeedForUser(c.Request.Context(), user.ID)
+	if err := a.feedRepo.GenerateFeedForUser(gCtx.Request.Context(), user.ID); err != nil {
+		log.Printf("cannot generate feed for user %d: %v", user.ID, err)
+	}
 
-	c.JSON(http.StatusOK, loginResp{
+	gCtx.JSON(http.StatusOK, loginResp{
 		Login:       user.Login,
 		Username:    user.Username,
 		ExpiresIn:   int64(a.config.JWT.ExpiresIn.Seconds()),
